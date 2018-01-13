@@ -1,6 +1,6 @@
-<p align="center"><a src="javascript:;" target="_blank">MGD</a></p>
+# MGD
 
-# 快速开始
+### 快速开始
 
 方法一：
 
