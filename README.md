@@ -1,17 +1,27 @@
 <p align="center"><a src="javascript:;" target="_blank">MGD</a></p>
-##快速开始
-<br>
-###方法一：先克隆下仓库，然后进入仓库执行npm link就可以启动mdg命令，启动编译器。
+# 快速开始
+方法一：
 ```
-git clone https://github.com/Jsnows/mgd.git
-cd path/to/mgd
-npm link 
-mdg
+$ git clone https://github.com/Jsnows/mgd.git
+
+$ cd path/to/mgd
+
+$ npm link 
+
+$ mdg
 ```
-<br>
-###方法二：直接使用sudo npm install -g mgd
+执行下面命令(建立一个软链接,也可以写进Path里)
 ```
-sudo npm install -g mgd
-mgd
+$ npm install
+
+$ npm link
+
+$ tree
+```
+方法二：
+```
+$ sudo npm install -g mgd
+
+$ mgd
 ```
 
