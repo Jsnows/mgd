@@ -13,14 +13,6 @@ $ npm link
 
 $ mdg
 ```
-执行下面命令(建立一个软链接,也可以写进Path里)
-```
-$ npm install
-
-$ npm link
-
-$ tree
-```
 方法二：
 ```
 $ sudo npm install -g mgd
