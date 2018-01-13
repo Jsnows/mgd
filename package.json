@@ -1,12 +1,18 @@
 {
-  "name": "webapp",
+  "name": "mgd_markdown",
   "version": "1.0.0",
-  "description": "webapp",
-  "main": "index.js",
-  "author": "",
-  "license": "MIT",
+  "description": "mgd",
+  "main": "./server/index.js",
+  "author": "jsnows",
+  "license": "ISC",
+  "keywords":[
+    "markdown"
+  ],
   "scripts": {
     "dev": "node ./server/index.js"
+  },
+  "bin": {
+    "mgd": "./server/index.js"
   },
   "devDependencies": {
     "vue": "^2.3.4",
@@ -27,6 +33,7 @@
     "babel-preset-stage-3": "^6.24.1",
     "child_process": "^1.0.2",
     "clipboard": "^1.7.1",
+    "commander": "^2.13.0",
     "css-loader": "^0.28.7",
     "eslint": "^4.0.0",
     "eslint-loader": "^1.8.0",

@@ -1,8 +1,13 @@
-let express = require('express');
-let app = express();
-let opn = require('opn');
-let path = require('path');
-app.use(express.static(path.join('./dist')));
-app.listen(3001,function(req,res){
-    opn('http://localhost:3001');
-})
+#!/usr/bin/env node
+"use strict"
+const program = require('commander');
+const server = require('./server.js')
+
+program.parse(process.argv);
+/**
+ * 当用户没有输入的时候执行
+ */
+if (!program.args.length){
+    server();
+}
+
