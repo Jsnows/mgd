@@ -94,8 +94,7 @@
             Col,
             Button,
             Upload,
-            Tooltip,
-            VueEditor
+            Tooltip
         },
         data: function() {
             return {
