@@ -1,6 +1,6 @@
-# cui
+# MGD
 
-> An electron-vue project
+> A markdown editor 
 
 #### Build Setup
 
@@ -12,10 +12,15 @@ npm install
 npm run dev
 
 # build electron application for production
-npm run build
-
-
+npm run build:mac
+or
+npm run build:linux
+or
+npm run build:mas
+or
+npm run build:win32
 ```
+
 
 ---
 

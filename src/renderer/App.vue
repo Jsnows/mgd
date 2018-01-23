@@ -351,7 +351,7 @@
 
 <!-- CSS 样式 -->
 <style src="../../node_modules/iview/dist/styles/iview.css"></style>
-<style src="../../node_modules/highlight.js/styles/xcode.css"></style>
+<style src="../../node_modules/highlight.js/styles/default.css"></style>
 <!-- <style src="../../node_modules/bootstrap/dist/css/bootstrap.css"></style> -->
 <style>
     *{

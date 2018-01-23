@@ -8,7 +8,7 @@
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node complier/build.js",
-    "mac": "cross-env BUILD_TARGET=darwin node complier/build.js",
+    "build:mac": "cross-env BUILD_TARGET=darwin node complier/build.js",
     "build:linux": "cross-env BUILD_TARGET=linux node complier/build.js",
     "build:mas": "cross-env BUILD_TARGET=mas node complier/build.js",
     "build:win32": "cross-env BUILD_TARGET=win32 node complier/build.js",
