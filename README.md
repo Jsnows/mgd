@@ -1,22 +1,22 @@
-# MGD
+# cui
 
-### 快速开始
+> An electron-vue project
 
-方法一：
+#### Build Setup
+
+``` bash
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:9080
+npm run dev
+
+# build electron application for production
+npm run build
+
 
 ```
-$ git clone https://github.com/Jsnows/mgd.git
 
-$ cd path/to/mgd
+---
 
-$ npm link 
-
-$ mdg
-```
-方法二：
-```
-$ sudo npm install -g mgd
-
-$ mgd
-```
-
+This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).

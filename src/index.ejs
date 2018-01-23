@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh" style="height:100%;">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+        <meta name="apple-mobile-web-app-title" content="newPage">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="description" content="">
+        <meta name="keywords" content="">
+        <link rel="apple-touch-icon-precomposed">
+        <title>编辑器</title>
+        <% if (htmlWebpackPlugin.options.nodeModules) { %>
+        <!-- Add `node_modules/` to global paths so `require` works properly in development -->
+        <script>
+          require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
+        </script>
+      <% } %>
+    </head>
+    <body style="height:100%;">
+        <!-- page start -->
+        <section style="height:100%;" id="mountRoot">
+            <app style="height:100%;"></app>
+        </section>
+        <!-- page end -->
+    </body>
+</html>
+
