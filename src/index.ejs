@@ -12,11 +12,11 @@
         <link rel="apple-touch-icon-precomposed">
         <title>编辑器</title>
         <% if (htmlWebpackPlugin.options.nodeModules) { %>
-        <!-- Add `node_modules/` to global paths so `require` works properly in development -->
-        <script>
-          require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
-        </script>
-      <% } %>
+            <!-- Add `node_modules/` to global paths so `require` works properly in development -->
+            <script>
+              require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
+            </script>
+        <% } %>
     </head>
     <body style="height:100%;">
         <!-- page start -->
