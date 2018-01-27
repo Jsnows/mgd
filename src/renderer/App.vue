@@ -26,7 +26,7 @@
             </Col>
         </Col>
         <Col span="2" offset="5">
-            <Button class="button copyhtml" type="ghost">复制html</Button>
+            <!-- <Button @click="handleRender()" class="button" type="ghost">上传至博客</Button> -->
         </Col>
         <Col span="1">
             <Tooltip content="放大视图区">
@@ -50,7 +50,9 @@
     </Row>
     <Row style="height:92%;">
         <Col style="height:100%;transition:ease 0.5s;" :span="num1">
-            <textarea ref="textarea" class="textarea" v-model="input"></textarea>
+            <div ref="textarea" style="height:100%;">
+                <textarea id="code" class="textarea" v-model="input"></textarea>
+            </div>
         </Col>
         <Col style="height:100%;transition:ease 0.5s;" :span="num2">
             <div ref="div" class="div" v-html="html"></div>
@@ -67,7 +69,7 @@
      *  引入工具类库
      *  example : import apiName from 'api/apiName'
      */
-    
+    import CodeMirror from 'codemirror'
     /**
      *  引入组件 以及 组件mutation
      *  example : import comName from 'components/com-name/com-name'
@@ -77,13 +79,17 @@
     import {Row , Col , Button, Upload,Tooltip} from 'iview'
     import high from 'highlight.js'
     import Clipboard from 'clipboard'
-    import {remote,ipcRenderer,Menu} from 'electron'
+    import {remote,ipcRenderer,Menu,getLocale} from 'electron'
     import fs from 'fs'
     import path from 'path'
-    import Mousetrap from 'mousetrap'
     import Util from '../../static/Util.js'
     import Remarkable from 'remarkable'
     import model from './model.js'
+    import axios from 'axios'
+    import low from 'lowdb'
+    import FileSync from 'lowdb/adapters/FileSync'
+    const adapter = new FileSync(path.join(__dirname,'../../config.json'))
+    const config = low(adapter)
     /**
      *  组件实例对象
      */
@@ -98,8 +104,10 @@
         data: function() {
             return {
                 input:'',
-                fontsize:18, //markdown字体
-                fonthtmlsize: 18, //html字体
+                // fontsize:config.get('editorConfig').value().fontsize, //markdown字体
+                fontsize:18,
+                fonthtmlsize:18,
+                // fonthtmlsize: config.get('editorConfig').value().fonthtmlsize, //html字体
                 key:[], //
                 filePath: '', //
                 show: false, //全屏展示
@@ -109,15 +117,43 @@
                     filters: [
                       { name: 'text', extensions: ['md'] }
                     ]
-                }
+                },
+                postText:{}, //上传的数据
+                icons: '', //图标字符串
+                postConfig:{
+                    secret:{
+                        text:'密码：',
+                        placeholder:'请输入密码...'
+                    },
+                    name:{
+                        text:'文章名：',
+                        placeholder:'请输入文章名...'
+                    },
+                    desc:{
+                        text:'描述：',
+                        placeholder:'请输入描述...'
+                    },
+                    img:{
+                        text:'图片URL：',
+                        placeholder:'请输入图片链接...'
+                    },
+                    iconsStr:{
+                        text:'图标：',
+                        placeholder:'请输入图标名称，例如：social-github'
+                    },
+                    file_name:{
+                        text:'保存文件名',
+                        placeholder:'请输入要保存的文件名...'
+                    }
+                },
+                editor:null,
             }
         },
         computed: {
             html(){
                 let self = this;
-                // console.log(self.input);
-                return self.R.render(self.input);
-                // return marked(self.input);
+                var value = marked(self.input);
+                return value
             },
             num1(){
                 let self = this;
@@ -139,22 +175,28 @@
         methods: {
             addFontSize(){
                 let self = this;
-                self.fontsize ++;
+                config.set('editorConfig.fontsize',self.fontsize+1).write();
+                self.fontsize = config.get('editorConfig').value().fontsize;
                 self.$refs.textarea.style.fontSize = self.fontsize+'px';
+                self.editor.setValue(self.input);
             },
             minuFontSize(){
                 let self = this;
-                self.fontsize --;
+                config.set('editorConfig.fontsize',self.fontsize-1).write();
+                self.fontsize = config.get('editorConfig').value().fontsize;
                 self.$refs.textarea.style.fontSize = self.fontsize+'px';
+                self.editor.setValue(self.input);
             },
             addHtmlFontSize(){
                 let self = this;
-                self.fonthtmlsize ++;
+                config.set('editorConfig.fonthtmlsize',self.fonthtmlsize+1).write();
+                self.fonthtmlsize = config.get('editorConfig').value().fonthtmlsize;
                 self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
             },
             minuHtmlFontSize(){
                 let self = this;
-                self.fonthtmlsize --;
+                config.set('editorConfig.fonthtmlsize',self.fonthtmlsize-1).write();
+                self.fonthtmlsize = config.get('editorConfig').value().fonthtmlsize;
                 self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
             },
             clickShow(){
@@ -178,6 +220,8 @@
                         document.getElementsByTagName('title')[0].innerHTML = file[0];
                         self.filePath = file[0];
                         self.input = fs.readFileSync(file[0]).toString();
+                        document.getElementById("code").innerHTML = self.input;
+                        self.editor.setValue(self.input);
                     }
                 });
             },
@@ -226,10 +270,6 @@
                         });
                     }
                 })
-            },
-            in(){
-                let self = this;
-                console.log(self.input);
             },
             _shortcutkeyInit(){
                 let self = this;
@@ -283,20 +323,20 @@
                 clipboard.on('error', function(e) {
                     self.$Message.error('没有复制成功，请使用chrome浏览器');
                 });
-                var clipboardHtml = new Clipboard('.copyhtml',{
-                    text: function(){
-                        if(self.html == ''){
-                            self.$Message.warning('没有可复制的内容');
-                        }
-                        return self.html;
-                    }
-                });
-                clipboardHtml.on('success', function(e){
-                    self.$Message.success('已经将html复制到剪切板');
-                });
-                clipboardHtml.on('error', function(e) {
-                    self.$Message.error('没有复制成功，请使用chrome浏览器');
-                });
+                // var clipboardHtml = new Clipboard('.copyhtml',{
+                //     text: function(){
+                //         if(self.html == ''){
+                //             self.$Message.warning('没有可复制的内容');
+                //         }
+                //         return self.html;
+                //     }
+                // });
+                // clipboardHtml.on('success', function(e){
+                //     self.$Message.success('已经将html复制到剪切板');
+                // });
+                // clipboardHtml.on('error', function(e) {
+                //     self.$Message.error('没有复制成功，请使用chrome浏览器');
+                // });
             },
             _markedInit(){
                 let self = this;
@@ -320,7 +360,137 @@
                       return high.highlightAuto(str).value;
                     }
                 });
+                marked.setOptions({
+                    renderer: new marked.Renderer(),
+                    gfm: true,
+                    tables: true,
+                    breaks: true,
+                    pedantic: true,
+                    sanitize: true,
+                    smartLists: true,
+                    smartypants: true,
+                    xhtml: false,
+                    highlight: function (code) {
+                        return require('highlight.js').highlightAuto(code).value;
+                    }
+                });
             },
+            updata(){
+                let self = this;
+                if(!self.input){
+                    self.$Message.error('文件内容为空');
+                    return
+                }
+                self.postText.icons = self.postText.iconsStr.split(',');
+                self.postText.content = self.input;
+                axios.post('http://www.jsnows.com/updata',self.postText)
+                .then(function (response) {
+                    if(response.data.code == 0){
+                        self.$Message.success('上传成功');
+                        self.$Modal.remove();
+                        self.postText = {};
+                    }else{
+                        self.$Modal.remove();
+                        self.$Message.error(response.data.message);
+                    }
+                })
+                .catch(function (error) {
+                    self.$Modal.remove();
+                    self.$Message.error('上传失败');
+                });
+            },
+            handleRender () {
+                let self = this;
+                var parms = ['secret','name','desc','iconsStr','img','file_name'];
+                this.$Modal.confirm({
+                    render: (h) => {
+                        return h('div',{},[
+                            parms.map(function (file) {
+                                return h('Row',{
+                                    style:{
+                                        marginBottom:'10px',
+                                        alignItems: 'center'
+                                    },
+                                    props:{
+                                        type:'flex',
+                                    }
+                                },[
+                                    h('Col',{
+                                        props:{
+                                            span:6,
+                                            type:'flex'
+                                        },
+                                        style:{
+                                            fontSize:'14px'
+                                        }
+                                    },[
+                                       self.postConfig[file].text
+                                    ]),
+                                    h('Col',{
+                                        props:{
+                                            span:18
+                                        }
+                                    },[
+                                        h('Input',{
+                                            props: {
+                                                value:self.postText[file] || '',
+                                                autofocus: true,
+                                                placeholder: self.postConfig[file].placeholder
+                                            },
+                                            on:{
+                                                input: (val) => {
+                                                    if(file == 'file_name'){
+                                                        if(val.indexOf('.md') !== -1){
+                                                            self.$Message.error('不需要添加.md后缀');
+                                                            return
+                                                        }
+                                                    }
+                                                    if(file == 'icons'){
+                                                        if(val.indexOf('，') !== -1){
+                                                            self.$Message.error('禁止使用中文逗号');
+                                                            return
+                                                        }
+                                                    }
+                                                    if(file == 'icons'){
+                                                        self.icons = val;
+                                                    }else{
+                                                        self.postText[file] = val;    
+                                                    }
+                                                }
+                                            }
+                                        }),
+                                    ])
+                                ])
+                            })]
+                        )
+                    },
+                    onOk:function(){
+                        self.updata();
+                    },
+                    loading:true
+                })
+            },
+            initEditor(){
+                let self = this;
+                require('../../node_modules/codemirror/mode/markdown/markdown.js');
+                require('../../node_modules/codemirror/mode/javascript/javascript.js');
+                setTimeout(function(){
+                    self.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                        mode:'markdown',
+                        lineNumbers: true,
+                        autoCloseBrackets: true,
+                        matchBrackets: true,
+                        showCursorWhenSelecting: true,
+                        lineWrapping: true,  // 长句子折行
+                        theme: "material",
+                    });
+                    self.editor.on('change', function(a){
+                        setTimeout(function(){
+                            self.input = a.getValue();    
+                        },0);
+                    });
+                },0)
+            }
         },
         beforeCreate(){
             let self = this;
@@ -338,20 +508,23 @@
         created() {
             let self = this;
             // 快捷键设置初始化
-            self._shortcutkeyInit()
+            self._shortcutkeyInit();
             // 提示初始化
-            self._toastInit()
+            self._toastInit();
             // marked配置初始化
-            self._markedInit()
+            self._markedInit();
+            // 初始化编辑器 
+            self.initEditor();
             model.init();
         }
     }
 </script>
 
 <!-- CSS 样式 -->
-<style src="../../node_modules/iview/dist/styles/iview.css"></style>
+<style src="../../static/css/iview.css"></style>
 <style src="../../node_modules/highlight.js/styles/xcode.css"></style>
-<!-- <style src="../../node_modules/bootstrap/dist/css/bootstrap.css"></style> -->
+<style src="../../node_modules/codemirror/lib/codemirror.css"></style>
+<style src="../../node_modules/codemirror/theme/material.css"></style>
 <style>
     *{
         -webkit-tap-highlight-color:transparent;
@@ -412,12 +585,7 @@
       overflow: auto;
       -ms-overflow-style: scrollbar;
     }
-    code,
-    kbd,
-    pre,
-    samp {
-      font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
+    
     code {
       font-size: 87.5%;
       color: #e83e8c;
@@ -436,7 +604,7 @@
     p{
         margin-bottom: 10px;
         /*padding-left:20px;*/
-        text-indent:2rem;
+        /*text-indent:2rem;*/
     }
     table{
         width: 100%;

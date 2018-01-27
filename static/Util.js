@@ -1,4 +1,20 @@
 const Util = {
+    // 加强循环
+    fors : function(obj,callback){
+        let keys = Object.keys(obj);
+        let length = keys.length;
+        for(let i = 0 ; i < length ; i++){
+            if(obj.constructor == Object){
+                if(callback(obj[keys[i]],keys[i]) == false){
+                    return
+                }
+            }else if(obj.constructor == Array){
+                if(callback(obj[keys[i]],i) == false){
+                    return
+                }
+            }
+        }
+    },
     // 快捷键
     checkKeyCode:function(codeArr,trueArr){
         if(codeArr.length !== trueArr.length){
