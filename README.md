@@ -12,7 +12,7 @@ npm install
 npm run dev
 
 # build electron application for production
-npm run build:mac
+npm run mac
 or
 npm run build:linux
 or
