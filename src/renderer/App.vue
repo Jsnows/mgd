@@ -147,6 +147,9 @@
                     }
                 },
                 editor:null,
+                cache:[],
+                keyDownTime:[],
+                lastTime:''
             }
         },
         computed: {
@@ -371,7 +374,35 @@
                     smartypants: true,
                     xhtml: false,
                     highlight: function (code) {
-                        return require('highlight.js').highlightAuto(code).value;
+                        // if(self.lastTime){
+                        //     var time = new Date().getTime() - self.lastTime;
+                        //     if(time < 500){
+                        //         self.lastTime = new Date().getTime();
+                        //         console.log('中断');
+                        //         return
+                        //     }
+                        // }
+                        // self.lastTime = new Date().getTime();
+                        if(self.cache.length !== 0){
+                            for(let i = 0 ; i < self.cache.length ; i++){
+                                if(self.cache[i].code == code){
+                                    return self.cache[i].highCode;
+                                }
+                            }
+                            var obj = {
+                                code:code,
+                                highCode:high.highlightAuto(code).value
+                            }
+                            self.cache.push(obj);
+                            return obj.highCode;    
+                        }else{
+                            var obj = {
+                                code:code,
+                                highCode:high.highlightAuto(code).value
+                            }
+                            self.cache.push(obj);
+                            return obj.highCode;
+                        }
                     }
                 });
             },
