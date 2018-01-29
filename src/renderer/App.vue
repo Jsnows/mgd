@@ -26,7 +26,7 @@
             </Col>
         </Col>
         <Col span="2" offset="5">
-            <!-- <Button @click="handleRender()" class="button" type="ghost">上传至博客</Button> -->
+            <Button @click="handleRender()" class="button" type="ghost">上传至博客</Button>
         </Col>
         <Col span="1">
             <Tooltip content="放大视图区">
@@ -79,7 +79,7 @@
     import {Row , Col , Button, Upload,Tooltip} from 'iview'
     import high from 'highlight.js'
     import Clipboard from 'clipboard'
-    import {remote,ipcRenderer,Menu,getLocale} from 'electron'
+    import {remote} from 'electron'
     import fs from 'fs'
     import path from 'path'
     import Util from '../../static/Util.js'
