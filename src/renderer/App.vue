@@ -713,7 +713,8 @@
     }
     th,tr,td{
         text-align:center;
-        border:1px solid #000;
+        background-color: #dadada;
+        /*border:1px solid #000;*/
     }
     h1,h2,h3,h4,h5,h6{
         padding-top: 1rem;
