@@ -1,20 +1,7 @@
 <template>
 <div style="height:100%;">
     <Row type="flex" align="middle" style="background-color:#3b454c;height:8%;color:#fff;">
-        <Col @click="saveFile()" span="3" offset="1">
-            <Tooltip content="快捷键 ⌘ + S">
-                <Button id="saveBtn" class="button" @click="saveFile()" type="ghost">保存</Button>
-            </Tooltip>
-            <Tooltip content="快捷键 ⌘ + shift + S">
-                <Button id="saveBtn" class="button" @click="otherSaveFile()" type="ghost">另存为</Button>
-            </Tooltip>
-        </Col>
-        <Col span="4">
-            <Tooltip content="快捷键 ⌘ + O">
-                <Button class="button" @click="openFile()" type="ghost" icon="ios-cloud-upload-outline">打开文件</Button>
-            </Tooltip>
-        </Col>
-        <Col span="4">
+        <!-- <Col span="4">
             <Col type="flex" align="middle" span="5">
                 <Button class="button" @click="addFontSize()" size="small" type="ghost" shape="circle" icon="plus"></Button>
             </Col>
@@ -24,28 +11,31 @@
             <Col type="flex" align="middle" span="5">
                 <Button class="button" @click="minuFontSize()" size="small" type="ghost" shape="circle" icon="minus"></Button>
             </Col>
+        </Col> -->
+        <Col span="3" offset="1">
+            <i-select style="width:150px" @on-change="changeHighlight" :filterable="true" placeholder="切换高亮主题" class="ul" v-model="theme">
+                <i-option v-for="item in themeArr" :value="item">{{ item }}</i-option>
+            </i-select>
         </Col>
-        <Col span="2" offset="5">
+        <Col span="2" offset="1">
+            高性能:
+            <i-switch @on-change="performance">
+                <span slot="open">开</span>
+                <span slot="close">关</span>
+            </i-switch>
+        </Col>
+        <Col span="2" offset="1">
             <Button @click="handleRender()" class="button" type="ghost">上传至博客</Button>
         </Col>
-        <Col span="1">
-            <Tooltip content="放大视图区">
+        <Col span="1" offset="1">
+            <!-- <Tooltip content="放大视图区">
                 <Button class="button" v-show="!show" @click="clickShow()" size="small" type="ghost" shape="circle" icon="arrow-expand"></Button>
             </Tooltip>
             <Tooltip content="缩小视图区">
                 <Button class="button" v-show="show" @click="hiddenShow()" size="small" type="ghost" shape="circle" icon="arrow-shrink"></Button>
-            </Tooltip>
+            </Tooltip> -->
         </Col>
-        <Col span="4">
-            <Col type="flex" align="middle" span="5">
-                <Button class="button" @click="addHtmlFontSize()" size="small" type="ghost" shape="circle" icon="plus"></Button>
-            </Col>
-            <Col type="flex" align="middle" span="14">
-                <p>html字体:{{fonthtmlsize}}px</p>
-            </Col>
-            <Col type="flex" align="middle" span="5">
-                <Button class="button" @click="minuHtmlFontSize()" size="small" type="ghost" shape="circle" icon="minus"></Button>
-            </Col>
+        <Col span="3" offset="1">
         </Col>
     </Row>
     <Row style="height:92%;">
@@ -79,17 +69,16 @@
     import {Row , Col , Button, Upload,Tooltip} from 'iview'
     import high from 'highlight.js'
     import Clipboard from 'clipboard'
-    import {remote} from 'electron'
+    import {remote,app} from 'electron'
     import fs from 'fs'
     import path from 'path'
     import Util from '../../static/Util.js'
     import Remarkable from 'remarkable'
     import model from './model.js'
     import axios from 'axios'
-    import low from 'lowdb'
-    import FileSync from 'lowdb/adapters/FileSync'
-    const adapter = new FileSync(path.join(__dirname,'../../config.json'))
-    const config = low(adapter)
+    const Store = require('electron-store');
+    const store = new Store();
+
     /**
      *  组件实例对象
      */
@@ -99,15 +88,13 @@
             Col,
             Button,
             Upload,
-            Tooltip
+            Tooltip,
         },
         data: function() {
             return {
                 input:'',
-                // fontsize:config.get('editorConfig').value().fontsize, //markdown字体
-                fontsize:18,
-                fonthtmlsize:18,
-                // fonthtmlsize: config.get('editorConfig').value().fonthtmlsize, //html字体
+                fontsize:store.get('fontsize') || 18,
+                fonthtmlsize:store.get('fonthtmlsize') || 18,
                 key:[], //
                 filePath: '', //
                 show: false, //全屏展示
@@ -148,14 +135,70 @@
                 },
                 editor:null,
                 cache:[],
-                keyDownTime:[],
-                lastTime:''
+                noHigh:false,
+                keyDownTime:'',
+                timer:null,
+                theme: store.get('theme'),
+                themeArr:[
+                "default",
+                "3024-day",
+                "3024-night",
+                "abcdef",
+                "ambiance",
+                "base16-dark",
+                "base16-light",
+                "bespin",
+                "blackboard",
+                "cobalt",
+                "colorforth",
+                "dracula",
+                "duotone-dark",
+                "duotone-light",
+                "eclipse",
+                "elegant",
+                "erlang-dark",
+                "hopscotch",
+                "icecoder",
+                "isotope",
+                "lesser-dark",
+                "liquibyte",
+                "material",
+                "mbo",
+                "mdn-like",
+                "midnight",
+                "monokai",
+                "neat",
+                "neo",
+                "night",
+                "oceanic-next",
+                "panda-syntax",
+                "paraiso-dark",
+                "paraiso-light",
+                "pastel-on-dark",
+                "railscasts",
+                "rubyblue",
+                "seti",
+                "shadowfox",
+                "solarized dark",
+                "solarized light",
+                "the-matrix",
+                "tomorrow-night-bright",
+                "tomorrow-night-eighties",
+                "ttcn",
+                "twilight",
+                "vibrant-ink",
+                "xq-dark",
+                "xq-light",
+                "yeti",
+                "zenburn",],
+                theme:''
             }
         },
         computed: {
             html(){
                 let self = this;
                 var value = marked(self.input);
+                // console.log(new Date().getTime() - start);
                 return value
             },
             num1(){
@@ -178,28 +221,36 @@
         methods: {
             addFontSize(){
                 let self = this;
-                config.set('editorConfig.fontsize',self.fontsize+1).write();
-                self.fontsize = config.get('editorConfig').value().fontsize;
+                // config.set('editorConfig.fontsize',self.fontsize+1).write();
+                // self.fontsize = config.get('editorConfig').value().fontsize;
+                self.fontsize++
+                store.set('fontsize',self.fontsize);
                 self.$refs.textarea.style.fontSize = self.fontsize+'px';
                 self.editor.setValue(self.input);
             },
             minuFontSize(){
                 let self = this;
-                config.set('editorConfig.fontsize',self.fontsize-1).write();
-                self.fontsize = config.get('editorConfig').value().fontsize;
+                // config.set('editorConfig.fontsize',self.fontsize-1).write();
+                // self.fontsize = config.get('editorConfig').value().fontsize;
+                self.fontsize--
+                store.set('fontsize',self.fontsize);
                 self.$refs.textarea.style.fontSize = self.fontsize+'px';
                 self.editor.setValue(self.input);
             },
             addHtmlFontSize(){
                 let self = this;
-                config.set('editorConfig.fonthtmlsize',self.fonthtmlsize+1).write();
-                self.fonthtmlsize = config.get('editorConfig').value().fonthtmlsize;
+                // config.set('editorConfig.fonthtmlsize',self.fonthtmlsize+1).write();
+                // self.fonthtmlsize = config.get('editorConfig').value().fonthtmlsize;
+                self.fonthtmlsize++
+                store.set('fonthtmlsize',self.fontsize);
                 self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
             },
             minuHtmlFontSize(){
                 let self = this;
-                config.set('editorConfig.fonthtmlsize',self.fonthtmlsize-1).write();
-                self.fonthtmlsize = config.get('editorConfig').value().fonthtmlsize;
+                // config.set('editorConfig.fonthtmlsize',self.fonthtmlsize-1).write();
+                // self.fonthtmlsize = config.get('editorConfig').value().fonthtmlsize;                
+                self.fonthtmlsize--
+                store.set('fonthtmlsize',self.fontsize);
                 self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
             },
             clickShow(){
@@ -374,15 +425,9 @@
                     smartypants: true,
                     xhtml: false,
                     highlight: function (code) {
-                        // if(self.lastTime){
-                        //     var time = new Date().getTime() - self.lastTime;
-                        //     if(time < 500){
-                        //         self.lastTime = new Date().getTime();
-                        //         console.log('中断');
-                        //         return
-                        //     }
-                        // }
-                        // self.lastTime = new Date().getTime();
+                        if(self.noHigh){
+                            return code
+                        }
                         if(self.cache.length !== 0){
                             for(let i = 0 ; i < self.cache.length ; i++){
                                 if(self.cache[i].code == code){
@@ -405,6 +450,11 @@
                         }
                     }
                 });
+            },
+            changeHighlight(theme){
+                let self = this;
+                self.editor.setOption("theme",theme);
+                store.set('theme',theme);
             },
             updata(){
                 let self = this;
@@ -505,7 +555,9 @@
                 let self = this;
                 require('../../node_modules/codemirror/mode/markdown/markdown.js');
                 require('../../node_modules/codemirror/mode/javascript/javascript.js');
+                require('../../node_modules/codemirror/mode/php/php.js');
                 setTimeout(function(){
+                    window.hiddenWindow();
                     self.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
                         mode:'markdown',
                         lineNumbers: true,
@@ -513,31 +565,65 @@
                         matchBrackets: true,
                         showCursorWhenSelecting: true,
                         lineWrapping: true,  // 长句子折行
-                        theme: "material",
+                        theme: self.theme,
                     });
                     self.editor.on('change', function(a){
-                        setTimeout(function(){
-                            self.input = a.getValue();    
-                        },0);
+                        var tt = new Date().getTime() - self.keyDownTime;
+                        self.keyDownTime = new Date().getTime();
+                        if(tt < 250){
+                            clearInterval(self.timer);
+                            self.timer = setTimeout(function(){
+                                self.input = a.getValue();
+                            },250)
+                        }else{
+                            setTimeout(function(){
+                                self.input = a.getValue();    
+                            },0)
+                        }
                     });
                 },0)
+            },
+            performance(status){
+                let self = this;
+                self.noHigh = status;
+            },
+            help(){
+
+            },
+            openNewWindow(){
+                // const winURL = process.env.NODE_ENV === 'development'
+                //   ? `http://localhost:9080`
+                //   : `file://${__dirname}/index.html`
+                // let win = new remote.BrowserWindow({
+                //     useContentSize: true,
+                //     minWidth:1000,
+                //     minHeight:600,
+                //     width:2000,
+                //     height:2000,
+                // });
+                // win.loadURL(winURL)
+                // win.on('closed', () => {
+                //     win = null
+                // })
             }
         },
         beforeCreate(){
             let self = this;
             setTimeout(function(){
-                self.$refs.textarea.style.fontSize = self.fontsize+'px';
-                self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
-                self.$refs.textarea.addEventListener('scroll',function(){
-                    var textareaScrollHeight = self.$refs.textarea.scrollHeight;
-                    var textareaScrollTop = self.$refs.textarea.scrollTop;
-                    var divScollHeight = self.$refs.div.scrollHeight;
-                    self.$refs.div.scrollTop = divScollHeight*(textareaScrollTop/textareaScrollHeight);
-                });
+                // 同步滚动 v.bate
+                // self.$refs.textarea.style.fontSize = self.fontsize+'px';
+                // self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
+                // self.$refs.textarea.addEventListener('scroll',function(){
+                //     var textareaScrollHeight = self.$refs.textarea.scrollHeight;
+                //     var textareaScrollTop = self.$refs.textarea.scrollTop;
+                //     var divScollHeight = self.$refs.div.scrollHeight;
+                //     self.$refs.div.scrollTop = divScollHeight*(textareaScrollTop/textareaScrollHeight);
+                // });
             },0);
         },
         created() {
             let self = this;
+            self.theme = store.get('theme');
             // 快捷键设置初始化
             self._shortcutkeyInit();
             // 提示初始化
@@ -546,7 +632,8 @@
             self._markedInit();
             // 初始化编辑器 
             self.initEditor();
-            model.init();
+            model.init(self);
+            // console.log(document.querySelector('#showWindow').style.display);
         }
     }
 </script>
@@ -556,6 +643,55 @@
 <style src="../../node_modules/highlight.js/styles/xcode.css"></style>
 <style src="../../node_modules/codemirror/lib/codemirror.css"></style>
 <style src="../../node_modules/codemirror/theme/material.css"></style>
+<style src="../../node_modules/codemirror/theme/3024-day.css"></style>
+<style src="../../node_modules/codemirror/theme/3024-night.css"></style>
+<style src="../../node_modules/codemirror/theme/abcdef.css"></style>
+<style src="../../node_modules/codemirror/theme/ambiance.css"></style>
+<style src="../../node_modules/codemirror/theme/base16-dark.css"></style>
+<style src="../../node_modules/codemirror/theme/bespin.css"></style>
+<style src="../../node_modules/codemirror/theme/base16-light.css"></style>
+<style src="../../node_modules/codemirror/theme/blackboard.css"></style>
+<style src="../../node_modules/codemirror/theme/cobalt.css"></style>
+<style src="../../node_modules/codemirror/theme/colorforth.css"></style>
+<style src="../../node_modules/codemirror/theme/dracula.css"></style>
+<style src="../../node_modules/codemirror/theme/duotone-dark.css"></style>
+<style src="../../node_modules/codemirror/theme/duotone-light.css"></style>
+<style src="../../node_modules/codemirror/theme/eclipse.css"></style>
+<style src="../../node_modules/codemirror/theme/elegant.css"></style>
+<style src="../../node_modules/codemirror/theme/erlang-dark.css"></style>
+<style src="../../node_modules/codemirror/theme/hopscotch.css"></style>
+<style src="../../node_modules/codemirror/theme/icecoder.css"></style>
+<style src="../../node_modules/codemirror/theme/isotope.css"></style>
+<style src="../../node_modules/codemirror/theme/lesser-dark.css"></style>
+<style src="../../node_modules/codemirror/theme/liquibyte.css"></style>
+<style src="../../node_modules/codemirror/theme/material.css"></style>
+<style src="../../node_modules/codemirror/theme/mbo.css"></style>
+<style src="../../node_modules/codemirror/theme/mdn-like.css"></style>
+<style src="../../node_modules/codemirror/theme/midnight.css"></style>
+<style src="../../node_modules/codemirror/theme/monokai.css"></style>
+<style src="../../node_modules/codemirror/theme/neat.css"></style>
+<style src="../../node_modules/codemirror/theme/neo.css"></style>
+<style src="../../node_modules/codemirror/theme/night.css"></style>
+<style src="../../node_modules/codemirror/theme/oceanic-next.css"></style>
+<style src="../../node_modules/codemirror/theme/panda-syntax.css"></style>
+<style src="../../node_modules/codemirror/theme/paraiso-dark.css"></style>
+<style src="../../node_modules/codemirror/theme/paraiso-light.css"></style>
+<style src="../../node_modules/codemirror/theme/pastel-on-dark.css"></style>
+<style src="../../node_modules/codemirror/theme/railscasts.css"></style>
+<style src="../../node_modules/codemirror/theme/rubyblue.css"></style>
+<style src="../../node_modules/codemirror/theme/seti.css"></style>
+<style src="../../node_modules/codemirror/theme/shadowfox.css"></style>
+<style src="../../node_modules/codemirror/theme/solarized.css"></style>
+<style src="../../node_modules/codemirror/theme/the-matrix.css"></style>
+<style src="../../node_modules/codemirror/theme/tomorrow-night-bright.css"></style>
+<style src="../../node_modules/codemirror/theme/tomorrow-night-eighties.css"></style>
+<style src="../../node_modules/codemirror/theme/ttcn.css"></style>
+<style src="../../node_modules/codemirror/theme/twilight.css"></style>
+<style src="../../node_modules/codemirror/theme/vibrant-ink.css"></style>
+<style src="../../node_modules/codemirror/theme/xq-dark.css"></style>
+<style src="../../node_modules/codemirror/theme/xq-light.css"></style>
+<style src="../../node_modules/codemirror/theme/yeti.css"></style>
+<style src="../../node_modules/codemirror/theme/zenburn.css"></style>
 <style>
     *{
         -webkit-tap-highlight-color:transparent;
@@ -647,5 +783,11 @@
     h1,h2,h3,h4,h5,h6{
         padding-top: 1rem;
         padding-bottom: 1rem;
+    }
+    .ul ul{
+        padding: 0px;
+    }
+    .windowImg{
+        background-image: url(../../static/logo.png);
     }
 </style>

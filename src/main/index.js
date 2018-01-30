@@ -26,6 +26,7 @@ function createWindow () {
     minHeight:600,
     width:2000,
     height:2000,
+    backgroundColor:'#2e2c29',
   })
 
   mainWindow.loadURL(winURL)
@@ -34,7 +35,6 @@ function createWindow () {
     mainWindow = null
   })
 }
-
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {

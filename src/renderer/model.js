@@ -1,10 +1,10 @@
 const model = {
-    init:function () {
-        _menu();
+    init:function (self) {
+        _menu(self);
     }
 }
 // 菜单初始化
-function _menu(){
+function _menu(self){
     const {app, Menu} = require('electron').remote
     const template = [
     {
@@ -35,6 +35,48 @@ function _menu(){
         label: '全选',
         accelerator: 'CmdOrCtrl+A',
         role: 'selectall'
+      }]
+    },{
+      label: '字体',
+      submenu:[{
+        label: '增大markdown字体',
+        accelerator: 'CmdOrCtrl+=',
+        click:()=>{self.addFontSize()}
+      },
+      {
+        label: '减小markdown字体',
+        accelerator: 'CmdOrCtrl+-',
+        click:()=>{self.minuFontSize()}
+      },
+      {
+        label: '增大html字体',
+        accelerator: 'Shift+CmdOrCtrl+=',
+        click:()=>{self.addHtmlFontSize()}
+      },
+      {
+        label: '减小html字体',
+        accelerator: 'Shift+CmdOrCtrl+-',
+        click:()=>{self.minuHtmlFontSize()}
+      }]
+    },
+    {
+      label: '窗口',
+      submenu:[{
+        label: '缩放文档展示区域',
+        accelerator: 'CmdOrCtrl+F',
+        click:()=>{
+          if(!self.show){
+            self.clickShow();
+          }else{
+            self.hiddenShow();
+          }
+        }
+      },{
+        label: '创建新窗口',
+        accelerator: 'CmdOrCtrl+N',
+        click:()=>{
+          self.openNewWindow();
+        }
       }]
     }]
     if (process.platform === 'darwin') {
