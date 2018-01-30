@@ -356,10 +356,10 @@
                     tables: true,
                     breaks: true,
                     pedantic: true,
-                    sanitize: true,
+                    sanitize: false,
                     smartLists: true,
                     smartypants: true,
-                    xhtml: false,
+                    xhtml: true,
                     highlight: function (code) {
                         if(self.noHigh){
                             return code
@@ -708,7 +708,7 @@
         /*padding-left:20px;*/
         /*text-indent:2rem;*/
     }
-    table{  
+    table{
         width: 100%;
     }
     th,tr,td{
