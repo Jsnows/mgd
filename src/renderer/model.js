@@ -78,6 +78,15 @@ function _menu(self){
           self.openNewWindow();
         }
       }]
+    },{
+      label:'帮助',
+      submenu:[{
+        label: '查看快捷键',
+        accelerator: 'CmdOrCtrl+H',
+        click:()=>{
+          self.help();
+        }
+      }]
     }]
     if (process.platform === 'darwin') {
       template.unshift({

@@ -1,41 +1,20 @@
 <template>
 <div style="height:100%;">
     <Row type="flex" align="middle" style="background-color:#3b454c;height:8%;color:#fff;">
-        <!-- <Col span="4">
-            <Col type="flex" align="middle" span="5">
-                <Button class="button" @click="addFontSize()" size="small" type="ghost" shape="circle" icon="plus"></Button>
-            </Col>
-            <Col type="flex" align="middle" span="14">
-                <p>md字体:{{fontsize}}px</p>
-            </Col>
-            <Col type="flex" align="middle" span="5">
-                <Button class="button" @click="minuFontSize()" size="small" type="ghost" shape="circle" icon="minus"></Button>
-            </Col>
-        </Col> -->
         <Col span="3" offset="1">
-            <i-select style="width:150px" @on-change="changeHighlight" :filterable="true" placeholder="切换高亮主题" class="ul" v-model="theme">
+            <i-select size="small" style="width:150px;" @on-change="changeHighlight" :filterable="true" placeholder="切换高亮主题" class="ul" v-model="theme">
                 <i-option v-for="item in themeArr" :value="item">{{ item }}</i-option>
             </i-select>
         </Col>
         <Col span="2" offset="1">
-            高性能:
+            高性能 : 
             <i-switch @on-change="performance">
                 <span slot="open">开</span>
                 <span slot="close">关</span>
             </i-switch>
         </Col>
         <Col span="2" offset="1">
-            <Button @click="handleRender()" class="button" type="ghost">上传至博客</Button>
-        </Col>
-        <Col span="1" offset="1">
-            <!-- <Tooltip content="放大视图区">
-                <Button class="button" v-show="!show" @click="clickShow()" size="small" type="ghost" shape="circle" icon="arrow-expand"></Button>
-            </Tooltip>
-            <Tooltip content="缩小视图区">
-                <Button class="button" v-show="show" @click="hiddenShow()" size="small" type="ghost" shape="circle" icon="arrow-shrink"></Button>
-            </Tooltip> -->
-        </Col>
-        <Col span="3" offset="1">
+            <Button size="small" @click="handleRender()" class="button" type="ghost">上传至博客</Button>
         </Col>
     </Row>
     <Row style="height:92%;">
@@ -73,7 +52,6 @@
     import fs from 'fs'
     import path from 'path'
     import Util from '../../static/Util.js'
-    import Remarkable from 'remarkable'
     import model from './model.js'
     import axios from 'axios'
     const Store = require('electron-store');
@@ -221,8 +199,6 @@
         methods: {
             addFontSize(){
                 let self = this;
-                // config.set('editorConfig.fontsize',self.fontsize+1).write();
-                // self.fontsize = config.get('editorConfig').value().fontsize;
                 self.fontsize++
                 store.set('fontsize',self.fontsize);
                 self.$refs.textarea.style.fontSize = self.fontsize+'px';
@@ -230,8 +206,6 @@
             },
             minuFontSize(){
                 let self = this;
-                // config.set('editorConfig.fontsize',self.fontsize-1).write();
-                // self.fontsize = config.get('editorConfig').value().fontsize;
                 self.fontsize--
                 store.set('fontsize',self.fontsize);
                 self.$refs.textarea.style.fontSize = self.fontsize+'px';
@@ -239,16 +213,12 @@
             },
             addHtmlFontSize(){
                 let self = this;
-                // config.set('editorConfig.fonthtmlsize',self.fonthtmlsize+1).write();
-                // self.fonthtmlsize = config.get('editorConfig').value().fonthtmlsize;
                 self.fonthtmlsize++
                 store.set('fonthtmlsize',self.fontsize);
                 self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
             },
             minuHtmlFontSize(){
-                let self = this;
-                // config.set('editorConfig.fonthtmlsize',self.fonthtmlsize-1).write();
-                // self.fonthtmlsize = config.get('editorConfig').value().fonthtmlsize;                
+                let self = this;            
                 self.fonthtmlsize--
                 store.set('fonthtmlsize',self.fontsize);
                 self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
@@ -377,43 +347,9 @@
                 clipboard.on('error', function(e) {
                     self.$Message.error('没有复制成功，请使用chrome浏览器');
                 });
-                // var clipboardHtml = new Clipboard('.copyhtml',{
-                //     text: function(){
-                //         if(self.html == ''){
-                //             self.$Message.warning('没有可复制的内容');
-                //         }
-                //         return self.html;
-                //     }
-                // });
-                // clipboardHtml.on('success', function(e){
-                //     self.$Message.success('已经将html复制到剪切板');
-                // });
-                // clipboardHtml.on('error', function(e) {
-                //     self.$Message.error('没有复制成功，请使用chrome浏览器');
-                // });
             },
             _markedInit(){
                 let self = this;
-                self.R = new Remarkable('full', {
-                    html:         true,        // Enable HTML tags in source
-                    xhtmlOut:     false,        // Use '/' to close single tags (<br />)
-                    breaks:       true,        // Convert '\n' in paragraphs into <br>
-                    langPrefix:   'language-',  // CSS language prefix for fenced blocks
-                    linkify:      true,         // autoconvert URL-like texts to links
-                    linkTarget:   '',           // set target to open link in
-
-                    // Enable some language-neutral replacements + quotes beautification
-                    typographer:  false,
-                    // Double + single quotes replacement pairs, when typographer enabled,
-                    // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
-                    quotes: '“”‘’',
-
-                    // Highlighter function. Should return escaped HTML,
-                    // or '' if input not changed
-                    highlight: function (str, lang) {
-                      return high.highlightAuto(str).value;
-                    }
-                });
                 marked.setOptions({
                     renderer: new marked.Renderer(),
                     gfm: true,
@@ -588,7 +524,7 @@
                 self.noHigh = status;
             },
             help(){
-
+                alert('help');
             },
             openNewWindow(){
                 // const winURL = process.env.NODE_ENV === 'development'
@@ -623,7 +559,7 @@
         },
         created() {
             let self = this;
-            self.theme = store.get('theme');
+            self.theme = store.get('theme') || 'material';
             // 快捷键设置初始化
             self._shortcutkeyInit();
             // 提示初始化
@@ -633,7 +569,6 @@
             // 初始化编辑器 
             self.initEditor();
             model.init(self);
-            // console.log(document.querySelector('#showWindow').style.display);
         }
     }
 </script>
@@ -773,7 +708,7 @@
         /*padding-left:20px;*/
         /*text-indent:2rem;*/
     }
-    table{
+    table{  
         width: 100%;
     }
     th,tr,td{
