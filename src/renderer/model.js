@@ -8,6 +8,28 @@ function _menu(self){
     const {app, Menu} = require('electron').remote
     const template = [
     {
+      label: '文件',
+      submenu: [{
+        label: '打开文件',
+        accelerator: 'CmdOrCtrl+O',
+        click:()=>{
+          self.openFile();
+        }
+      },{
+        label: '保存',
+        accelerator: 'CmdOrCtrl+S',
+        click:()=>{
+          self.saveFile();
+        }
+      },{
+        label: '另存为',
+        accelerator: 'Shift+CmdOrCtrl+S',
+        click:()=>{
+          self.otherSaveFile();
+        }
+      }]
+    },
+    {
       label: '编辑',
       submenu: [{
         label: '撤销',

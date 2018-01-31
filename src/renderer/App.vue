@@ -298,33 +298,33 @@
             _shortcutkeyInit(){
                 let self = this;
                 window.onkeydown=function(event){
-                    var e = event || window.event || arguments.callee.caller.arguments[0];
-                    if(self.key.indexOf(e.keyCode)==-1){
-                        self.key.push(e.keyCode)  
-                    }
+                    // var e = event || window.event || arguments.callee.caller.arguments[0];
+                    // if(self.key.indexOf(e.keyCode)==-1){
+                    //     self.key.push(e.keyCode)  
+                    // }
                     // console.log(e.keyCode);
                     // console.log(self.key[0]+self.key[1] == 170);
-                    if(Util.checkKeyCode(self.key,[91,79])){
-                        // 打开快捷键91,79
-                        self.openFile();
-                        e.preventDefault();  
-                        window.event.returnValue = false;
-                        return
-                    }else if(Util.checkKeyCode(self.key,[91,83])){
-                        // 保存快捷键91,83
-                        self.saveFile();
-                        e.preventDefault();  
-                        window.event.returnValue = false;
-                        return
-                    }else if(Util.checkKeyCode(self.key,[91,83,16])){
-                        self.otherSaveFile();
-                        e.preventDefault();  
-                        window.event.returnValue = false;
-                        return
-                    }else if(Util.checkKeyCode(self.key,[9])){
-                        e.preventDefault();  
-                        window.event.returnValue = false;
-                    }
+                    // if(Util.checkKeyCode(self.key,[91,79])){
+                    //     // 打开快捷键91,79
+                    //     self.openFile();
+                    //     e.preventDefault();  
+                    //     window.event.returnValue = false;
+                    //     return
+                    // }else if(Util.checkKeyCode(self.key,[91,83])){
+                    //     // 保存快捷键91,83
+                    //     self.saveFile();
+                    //     e.preventDefault();  
+                    //     window.event.returnValue = false;
+                    //     return
+                    // }else if(Util.checkKeyCode(self.key,[91,83,16])){
+                    //     self.otherSaveFile();
+                    //     e.preventDefault();  
+                    //     window.event.returnValue = false;
+                    //     return
+                    // }else if(Util.checkKeyCode(self.key,[9])){
+                    //     e.preventDefault();  
+                    //     window.event.returnValue = false;
+                    // }
                 };
                 window.onkeyup=function(event){
                     var e = event || window.event || arguments.callee.caller.arguments[0];
@@ -491,9 +491,10 @@
                 let self = this;
                 require('../../node_modules/codemirror/mode/markdown/markdown.js');
                 require('../../node_modules/codemirror/mode/javascript/javascript.js');
-                require('../../node_modules/codemirror/mode/php/php.js');
                 setTimeout(function(){
+                    // 关闭启动图
                     window.hiddenWindow();
+                    self.$refs.textarea.style.fontSize = self.fontsize+'px';
                     self.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
                         mode:'markdown',
                         lineNumbers: true,
