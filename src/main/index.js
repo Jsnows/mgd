@@ -19,6 +19,8 @@ function createWindow () {
    * Initial window options
    */
   // autoUpdater.updateMenu()
+  // var shouldQuit = makeSingleInstance()
+  // if (shouldQuit) return app.quit()
   var filePath = '';
   mainWindow = new BrowserWindow({
     useContentSize: true,
@@ -26,7 +28,7 @@ function createWindow () {
     minHeight:600,
     width:2000,
     height:2000,
-    backgroundColor:'#2e2c29',
+    backgroundColor:'#2e2c29'
   })
 
   mainWindow.loadURL(winURL)
@@ -48,3 +50,13 @@ app.on('activate', () => {
     createWindow()
   }
 })
+// function makeSingleInstance () {
+//   if (process.mas) return false
+
+//   return app.makeSingleInstance(function () {
+//     if (mainWindow) {
+//       if (mainWindow.isMinimized()) mainWindow.restore()
+//       mainWindow.focus()
+//     }
+//   })
+// }

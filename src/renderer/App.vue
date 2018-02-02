@@ -48,7 +48,7 @@
     import {Row , Col , Button, Upload,Tooltip} from 'iview'
     import high from 'highlight.js'
     import Clipboard from 'clipboard'
-    import {remote,app} from 'electron'
+    import {remote,app,ipcRenderer} from 'electron'
     import fs from 'fs'
     import path from 'path'
     import Util from '../../static/Util.js'
@@ -525,7 +525,26 @@
                 self.noHigh = status;
             },
             help(){
-                alert('help');
+                let self = this;
+                const winURL = process.env.NODE_ENV === 'development'
+                    ? `http://localhost:9080`
+                    : `file://${__dirname}/index.html`
+                var win = new remote.BrowserWindow({
+                    useContentSize: true,
+                    minWidth:1000,
+                    minHeight:600,
+                    width:2000,
+                    height:2000,
+                    backgroundColor:'#2e2c29',
+                })
+                win.on('close', function () {
+                    win = null
+                })
+                win.on('blur',function(){
+                    model.init(self);
+                    // console.log('on');
+                })
+                win.loadURL(winURL)
             },
             openNewWindow(){
                 // const winURL = process.env.NODE_ENV === 'development'
@@ -570,6 +589,19 @@
             // 初始化编辑器 
             self.initEditor();
             model.init(self);
+            var thisWindow = remote.getCurrentWindow();
+            thisWindow.on('focus',function(){
+                model.init(self);
+            })
+            remote.protocol.isProtocolHandled("MGD",(status)=>{
+                if(!status){
+                    remote.protocol.registerFileProtocol('MGD', (request, callback) => {
+                        const url = request.url.substr(7)
+                        callback({path: path.normalize(`${__dirname}/${url}`)})
+                    })
+                }
+            })
+            
         }
     }
 </script>

@@ -99,6 +99,10 @@ function _menu(self){
         click:()=>{
           self.openNewWindow();
         }
+      },{
+        label: '关闭',
+        accelerator: 'CmdOrCtrl+W',
+        role: 'close'
       }]
     },{
       label:'帮助',
@@ -107,6 +111,12 @@ function _menu(self){
         accelerator: 'CmdOrCtrl+H',
         click:()=>{
           self.help();
+        }
+      },{
+        label: 'test',
+        accelerator: 'CmdOrCtrl+0',
+        click:()=>{
+          console.log('this');
         }
       }]
     }]
