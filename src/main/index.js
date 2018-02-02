@@ -8,7 +8,6 @@ import path from 'path'
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
-
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
@@ -49,6 +48,18 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+app.on('open-file',(event,filePath)=>{
+  if(process.env._firsted){
+    process.env._openFilePath = filePath;
+    createWindow();
+  }else{
+    process.env._firsted = true;
+    process.env._openFilePath = filePath;  
+  }
+})
+ipcMain.on('webDone',()=>{
+  process.env._openFilePath = '';
 })
 // function makeSingleInstance () {
 //   if (process.mas) return false

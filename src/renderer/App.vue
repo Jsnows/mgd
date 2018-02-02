@@ -239,7 +239,6 @@
                         { name: 'text', extensions: ['md'] },
                     ]
                 },function(file){
-                    self.key = [];
                     if(file){
                         document.getElementsByTagName('title')[0].innerHTML = file[0];
                         self.filePath = file[0];
@@ -264,7 +263,6 @@
                         self.$Message.warning('内有任何内容');
                     }else{
                         remote.dialog.showSaveDialog(self.saveFileOptions, function (filename) {
-                            self.key = [];
                             if(filename){
                                 fs.writeFile(filename, self.input, (err) => {
                                     if (err){
@@ -282,7 +280,6 @@
             otherSaveFile(){
                 let self = this;
                 remote.dialog.showSaveDialog(self.saveFileOptions, function (filename) {
-                    self.key = [];
                     if(filename){
                         fs.writeFile(filename, self.input, (err) => {
                             if (err){
@@ -328,7 +325,6 @@
                 };
                 window.onkeyup=function(event){
                     var e = event || window.event || arguments.callee.caller.arguments[0];
-                    self.key = [];
                 };
             },
             _toastInit(){
@@ -542,25 +538,29 @@
                 })
                 win.on('blur',function(){
                     model.init(self);
-                    // console.log('on');
                 })
-                win.loadURL(winURL)
+                win.loadURL(winURL);
             },
             openNewWindow(){
-                // const winURL = process.env.NODE_ENV === 'development'
-                //   ? `http://localhost:9080`
-                //   : `file://${__dirname}/index.html`
-                // let win = new remote.BrowserWindow({
-                //     useContentSize: true,
-                //     minWidth:1000,
-                //     minHeight:600,
-                //     width:2000,
-                //     height:2000,
-                // });
-                // win.loadURL(winURL)
-                // win.on('closed', () => {
-                //     win = null
-                // })
+                let self = this;
+                const winURL = process.env.NODE_ENV === 'development'
+                    ? `http://localhost:9080`
+                    : `file://${__dirname}/index.html`
+                var win = new remote.BrowserWindow({
+                    useContentSize: true,
+                    minWidth:1000,
+                    minHeight:600,
+                    width:2000,
+                    height:2000,
+                    backgroundColor:'#2e2c29',
+                })
+                win.on('close', function () {
+                    win = null
+                })
+                win.on('blur',function(){
+                    model.init(self);
+                })
+                win.loadURL(winURL);
             }
         },
         beforeCreate(){
@@ -601,7 +601,18 @@
                     })
                 }
             })
-            
+            if(process.env._openFilePath){
+                ipcRenderer.send('webDone');
+                let path = process.env._openFilePath;
+                if(self.input == '' && self.filePath == ''){
+                    document.getElementsByTagName('title')[0].innerHTML = path;
+                    self.filePath = path;
+                    self.input = fs.readFileSync(path).toString();
+                    document.getElementById("code").innerHTML = self.input;
+                    self.editor.setValue(self.input);
+                    process.env._openFilePath = '';
+                }
+            }
         }
     }
 </script>
