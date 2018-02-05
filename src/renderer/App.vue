@@ -16,6 +16,12 @@
         <Col span="2" offset="1">
             <Button size="small" @click="handleRender()" class="button" type="ghost">上传至博客</Button>
         </Col>
+        <Col span="2" offset="1">
+            <Button size="small" @click="deleteFile()" class="button" type="ghost">删除</Button>
+        </Col>
+        <Col span="2" offset="1">
+            <Button size="small" @click="changeFile()" class="button" type="ghost">修改</Button>
+        </Col>
     </Row>
     <Row style="height:92%;">
         <Col style="height:100%;transition:ease 0.5s;" :span="num1">
@@ -176,7 +182,6 @@
             html(){
                 let self = this;
                 var value = marked(self.input);
-                // console.log(new Date().getTime() - start);
                 return value
             },
             num1(){
@@ -396,7 +401,7 @@
                 }
                 self.postText.icons = self.postText.iconsStr.split(',');
                 self.postText.content = self.input;
-                axios.post('http://www.jsnows.com/updata',self.postText)
+                axios.post('http://localhost:3000/updata',self.postText)
                 .then(function (response) {
                     if(response.data.code == 0){
                         self.$Message.success('上传成功');
@@ -410,6 +415,25 @@
                 .catch(function (error) {
                     self.$Modal.remove();
                     self.$Message.error('上传失败');
+                });
+            },
+            deleteFile(){
+                axios.post('http://localhost:3000/delete',{file_name:'m'})
+                .then(function (response) {
+                    console.log(response)
+                })
+                .catch(function (error) {
+                    console.log(error)
+                });
+            },
+            changeFile(){
+                let self = this;
+                axios.post('http://localhost:3000/change',{file_name:'m',content:self.input,secret:'cuiqiongxue520'})
+                .then(function (response) {
+                    console.log(response)
+                })
+                .catch(function (error) {
+                    console.log(error)
                 });
             },
             handleRender () {
@@ -566,9 +590,10 @@
         beforeCreate(){
             let self = this;
             setTimeout(function(){
+                // 字体初始化
+                self.$refs.textarea.style.fontSize = self.fontsize+'px';
+                self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
                 // 同步滚动 v.bate
-                // self.$refs.textarea.style.fontSize = self.fontsize+'px';
-                // self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
                 // self.$refs.textarea.addEventListener('scroll',function(){
                 //     var textareaScrollHeight = self.$refs.textarea.scrollHeight;
                 //     var textareaScrollTop = self.$refs.textarea.scrollTop;
@@ -581,7 +606,7 @@
             let self = this;
             self.theme = store.get('theme') || 'material';
             // 快捷键设置初始化
-            self._shortcutkeyInit();
+            // self._shortcutkeyInit();
             // 提示初始化
             self._toastInit();
             // marked配置初始化
