@@ -17,6 +17,9 @@
             <Button size="small" @click="handleRender()" class="button" type="ghost">上传至博客</Button>
         </Col>
         <Col span="2" offset="1">
+            <Button size="small" @click="pull()" class="button" type="ghost">同步远程文章</Button>
+        </Col>
+        <Col span="2" offset="1">
             <Button size="small" @click="deleteFile()" class="button" type="ghost">删除</Button>
         </Col>
         <Col span="2" offset="1">
@@ -33,10 +36,7 @@
             <div ref="div" class="div" v-html="html"></div>
         </Col>
     </Row>
-    <!-- <div ref="showDiv" :class="{trans:show}" @click="show=false" class="showDiv" v-html="html"> -->
-    </div>
 </div>
-
 </template>
 
 <script>
@@ -51,7 +51,7 @@
      *  example : import * as comname_mt from 'components/com-name/com-name-mutation-types'
      */
     import marked from 'marked'
-    import {Row , Col , Button, Upload,Tooltip} from 'iview'
+    import {Row , Col , Button, Upload,Tooltip,Modal} from 'iview'
     import high from 'highlight.js'
     import Clipboard from 'clipboard'
     import {remote,app,ipcRenderer} from 'electron'
@@ -73,9 +73,11 @@
             Button,
             Upload,
             Tooltip,
+            Modal
         },
         data: function() {
             return {
+                apiUrl:'http://localhost:3000',
                 input:'',
                 fontsize:store.get('fontsize') || 18,
                 fonthtmlsize:store.get('fonthtmlsize') || 18,
@@ -124,57 +126,58 @@
                 timer:null,
                 theme: store.get('theme'),
                 themeArr:[
-                "default",
-                "3024-day",
-                "3024-night",
-                "abcdef",
-                "ambiance",
-                "base16-dark",
-                "base16-light",
-                "bespin",
-                "blackboard",
-                "cobalt",
-                "colorforth",
-                "dracula",
-                "duotone-dark",
-                "duotone-light",
-                "eclipse",
-                "elegant",
-                "erlang-dark",
-                "hopscotch",
-                "icecoder",
-                "isotope",
-                "lesser-dark",
-                "liquibyte",
-                "material",
-                "mbo",
-                "mdn-like",
-                "midnight",
-                "monokai",
-                "neat",
-                "neo",
-                "night",
-                "oceanic-next",
-                "panda-syntax",
-                "paraiso-dark",
-                "paraiso-light",
-                "pastel-on-dark",
-                "railscasts",
-                "rubyblue",
-                "seti",
-                "shadowfox",
-                "solarized dark",
-                "solarized light",
-                "the-matrix",
-                "tomorrow-night-bright",
-                "tomorrow-night-eighties",
-                "ttcn",
-                "twilight",
-                "vibrant-ink",
-                "xq-dark",
-                "xq-light",
-                "yeti",
-                "zenburn",],
+                    "default",
+                    "3024-day",
+                    "3024-night",
+                    "abcdef",
+                    "ambiance",
+                    "base16-dark",
+                    "base16-light",
+                    "bespin",
+                    "blackboard",
+                    "cobalt",
+                    "colorforth",
+                    "dracula",
+                    "duotone-dark",
+                    "duotone-light",
+                    "eclipse",
+                    "elegant",
+                    "erlang-dark",
+                    "hopscotch",
+                    "icecoder",
+                    "isotope",
+                    "lesser-dark",
+                    "liquibyte",
+                    "material",
+                    "mbo",
+                    "mdn-like",
+                    "midnight",
+                    "monokai",
+                    "neat",
+                    "neo",
+                    "night",
+                    "oceanic-next",
+                    "panda-syntax",
+                    "paraiso-dark",
+                    "paraiso-light",
+                    "pastel-on-dark",
+                    "railscasts",
+                    "rubyblue",
+                    "seti",
+                    "shadowfox",
+                    "solarized dark",
+                    "solarized light",
+                    "the-matrix",
+                    "tomorrow-night-bright",
+                    "tomorrow-night-eighties",
+                    "ttcn",
+                    "twilight",
+                    "vibrant-ink",
+                    "xq-dark",
+                    "xq-light",
+                    "yeti",
+                    "zenburn",
+                ],
                 theme:''
             }
         },
@@ -401,7 +404,7 @@
                 }
                 self.postText.icons = self.postText.iconsStr.split(',');
                 self.postText.content = self.input;
-                axios.post('http://localhost:3000/updata',self.postText)
+                axios.post(`${self.apiUrl}/updata`,self.postText)
                 .then(function (response) {
                     if(response.data.code == 0){
                         self.$Message.success('上传成功');
@@ -417,8 +420,22 @@
                     self.$Message.error('上传失败');
                 });
             },
+            // 同步远程文章
+            pull(){
+                let self = this;
+                axios.get(`${self.apiUrl}/home`,{params:{
+                    page:1
+                }})
+                .then(function (response) {
+                    console.log(response.data.data.list)
+                })
+                .catch(function (error) {
+                    console.log(error)
+                })
+            },
             deleteFile(){
-                axios.post('http://localhost:3000/delete',{file_name:'m'})
+                let self = this;
+                axios.post(`${self.apiUrl}/delete`,{file_name:'m'})
                 .then(function (response) {
                     console.log(response)
                 })
@@ -428,7 +445,7 @@
             },
             changeFile(){
                 let self = this;
-                axios.post('http://localhost:3000/change',{file_name:'m',content:self.input,secret:'cuiqiongxue520'})
+                axios.post(`${self.apiUrl}/change`,{file_name:'m',content:self.input,secret:'cuiqiongxue520'})
                 .then(function (response) {
                     console.log(response)
                 })
@@ -594,15 +611,9 @@
                 self.$refs.textarea.style.fontSize = self.fontsize+'px';
                 self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
                 // 同步滚动 v.bate
-                // self.$refs.textarea.addEventListener('scroll',function(){
-                //     var textareaScrollHeight = self.$refs.textarea.scrollHeight;
-                //     var textareaScrollTop = self.$refs.textarea.scrollTop;
-                //     var divScollHeight = self.$refs.div.scrollHeight;
-                //     self.$refs.div.scrollTop = divScollHeight*(textareaScrollTop/textareaScrollHeight);
-                // });
             },0);
         },
-        created() {
+        created(){
             let self = this;
             self.theme = store.get('theme') || 'material';
             // 快捷键设置初始化
@@ -795,4 +806,16 @@
     .windowImg{
         background-image: url(../../static/logo.png);
     }
+    .example {
+        width: 100px;
+        height: 100px;
+        transform: translate3d(0, -100px, 0);
+    }
+    .fold-enter-active, .fold-leave-active {
+        transition: all .5s;
+    }
+    .fold-enter, .fold-leave-active {
+        transform: translate3d(0, 0, 0);
+    }
+
 </style>

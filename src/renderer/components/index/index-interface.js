@@ -9,9 +9,9 @@ import * as index from './index-mutation-types';
  *  example : [index.SET_EXAMPLE] (state, data) { state.example = data; }
  */
 const mutations = {
-    add:function(value){
-        state.main ++;
-    }
+    [index.SET_INDEX_SHOW] (state, newState) {
+        state.show = newState;   
+    },
 }
 
 export default {
