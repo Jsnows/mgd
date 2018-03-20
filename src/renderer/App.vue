@@ -77,7 +77,7 @@
         },
         data: function() {
             return {
-                apiUrl:'http://localhost:3000',
+                apiUrl:'http://www.jsnows.com',
                 input:'',
                 fontsize:store.get('fontsize') || 18,
                 fonthtmlsize:store.get('fonthtmlsize') || 18,
