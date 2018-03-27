@@ -76,8 +76,5 @@
 	<key>NSSupportsAutomaticGraphicsSwitching - 2</key>
 	<true/>
 	<key>NSAppleScriptEnabled</key>
-	<string>YES</string>
-	<key>SUScheduledCheckInterval</key>
-	<string>3600</string>
-</dict>
+	<string>YES</string></dict>
 </plist>
