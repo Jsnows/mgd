@@ -13,7 +13,7 @@
                 <span slot="close">关</span>
             </i-switch>
         </Col>
-        <Col span="2" offset="1">
+        <!-- <Col span="2" offset="1">
             <Button size="small" @click="handleRender()" class="button" type="ghost">上传至博客</Button>
         </Col>
         <Col span="2" offset="1">
@@ -24,7 +24,7 @@
         </Col>
         <Col span="2" offset="1">
             <Button size="small" @click="changeFile()" class="button" type="ghost">修改</Button>
-        </Col>
+        </Col> -->
     </Row>
     <Row style="height:92%;">
         <Col style="height:100%;transition:ease 0.5s;" :span="num1">
@@ -45,6 +45,7 @@
      *  example : import apiName from 'api/apiName'
      */
     import CodeMirror from 'codemirror'
+    import Parallel from 'paralleljs'
     /**
      *  引入组件 以及 组件mutation
      *  example : import comName from 'components/com-name/com-name'
@@ -185,6 +186,22 @@
             html(){
                 let self = this;
                 var value = marked(self.input);
+                // 调用外部浏览器打开markdown文档链接，否则点击链接将会在编辑器内部跳转
+                setTimeout(function(){
+                    const shell = require('electron').shell
+                    const links = document.querySelectorAll('a[href]')
+                    console.log(links);
+                    Array.prototype.forEach.call(links, function (link) {
+                      const url = link.getAttribute('href')
+                      if (url.indexOf('http') === 0) {
+                        link.addEventListener('click', function (e) {
+                          e.preventDefault()
+                          shell.openExternal(url)
+                        })
+                      }
+                    })
+                },0)
+                // var value = self.input;
                 return value
             },
             num1(){
@@ -441,7 +458,7 @@
                 })
                 .catch(function (error) {
                     console.log(error)
-                });
+                })
             },
             changeFile(){
                 let self = this;
@@ -451,7 +468,7 @@
                 })
                 .catch(function (error) {
                     console.log(error)
-                });
+                })
             },
             handleRender () {
                 let self = this;
@@ -544,7 +561,11 @@
                     self.editor.on('change', function(a){
                         var tt = new Date().getTime() - self.keyDownTime;
                         self.keyDownTime = new Date().getTime();
-                        if(tt < 250){
+                        if(self.noHigh){
+                            self.input = a.getValue();
+                            return
+                        }
+                        if(tt < 400){
                             clearInterval(self.timer);
                             self.timer = setTimeout(function(){
                                 self.input = a.getValue();
@@ -735,7 +756,7 @@
         width:100%;
         height:100%;
         margin: 0 2px;
-        padding:10px;
+        padding:10px 50px;
         overflow:auto;
         /*background-color: #303548;*/
         /*color:#fff;*/
@@ -762,12 +783,14 @@
     pre{border:1px solid #a9a9a9; border-radius: 5px; padding:20px;}
     /*code{color:#c7254e;}*/
     pre {
-      margin-top: 0;
+      margin: 10px 0px;
       margin-bottom: 1rem;
       overflow: auto;
       -ms-overflow-style: scrollbar;
     }
-    
+    table {
+        margin:10px 0px;
+    }
     code {
       font-size: 87.5%;
       color: #e83e8c;
@@ -794,6 +817,7 @@
     th,tr,td{
         text-align:center;
         background-color: #dadada;
+        padding:5px;
         /*border:1px solid #000;*/
     }
     h1,h2,h3,h4,h5,h6{

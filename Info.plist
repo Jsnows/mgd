@@ -64,7 +64,7 @@
 				<string>md</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>icon.icns</string>
+			<string>electron.icns</string>
 			<key>CFBundleTypeName</key>
 			<string>Markdown document</string>
 			<key>CFBundleTypeRole</key>
@@ -76,5 +76,8 @@
 	<key>NSSupportsAutomaticGraphicsSwitching - 2</key>
 	<true/>
 	<key>NSAppleScriptEnabled</key>
-	<string>YES</string></dict>
+	<string>YES</string>
+	<key>SUScheduledCheckInterval</key>
+	<string>3600</string>
+</dict>
 </plist>
