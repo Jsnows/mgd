@@ -185,7 +185,7 @@
         computed: {
             html(){
                 let self = this;
-                var value = marked(self.input);
+                // var value = marked(self.input);
                 // 调用外部浏览器打开markdown文档链接，否则点击链接将会在编辑器内部跳转
                 setTimeout(function(){
                     const shell = require('electron').shell
@@ -200,7 +200,7 @@
                       }
                     })
                 },0)
-                // var value = self.input;
+                var value = self.input;
                 return value
             },
             num1(){
@@ -266,9 +266,13 @@
                     if(file){
                         document.getElementsByTagName('title')[0].innerHTML = file[0];
                         self.filePath = file[0];
-                        self.input = fs.readFileSync(file[0]).toString();
-                        document.getElementById("code").innerHTML = self.input;
-                        self.editor.setValue(self.input);
+                        axios.post(`http://localhost:3000/test`,{text:fs.readFileSync(file[0]).toString()})
+                        .then(function(response){
+                            self.input = response.data
+                        })
+                        // self.input = fs.readFileSync(file[0]).toString();
+                        // document.getElementById("code").innerHTML = self.input;
+                        self.editor.setValue(fs.readFileSync(file[0]).toString());
                     }
                 });
             },
@@ -560,27 +564,28 @@
                     self.editor.on('change', function(a){
                         axios.post(`http://localhost:3000/test`,{text:a.getValue()})
                         .then(function (response) {
+                            self.input = response.data
                             console.log(response)
                         })
                         .catch(function (error) {
                             console.log(error)
                         })
-                        var tt = new Date().getTime() - self.keyDownTime;
-                        self.keyDownTime = new Date().getTime();
-                        if(self.noHigh){
-                            self.input = a.getValue();
-                            return
-                        }
-                        if(tt < 400){
-                            clearInterval(self.timer);
-                            self.timer = setTimeout(function(){
-                                self.input = a.getValue();
-                            },250)
-                        }else{
-                            setTimeout(function(){
-                                self.input = a.getValue();    
-                            },0)
-                        }
+                        // var tt = new Date().getTime() - self.keyDownTime;
+                        // self.keyDownTime = new Date().getTime();
+                        // if(self.noHigh){
+                        //     self.input = a.getValue();
+                        //     return
+                        // }
+                        // if(tt < 400){
+                        //     clearInterval(self.timer);
+                        //     self.timer = setTimeout(function(){
+                        //         self.input = a.getValue();
+                        //     },250)
+                        // }else{
+                        //     setTimeout(function(){
+                        //         self.input = a.getValue();    
+                        //     },0)
+                        // }
                     });
                 },0)
             },
@@ -648,7 +653,7 @@
             // 提示初始化
             self._toastInit();
             // marked配置初始化
-            self._markedInit();
+            // self._markedInit();
             // 初始化编辑器 
             self.initEditor();
             model.init(self);
