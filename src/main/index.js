@@ -1,10 +1,17 @@
 import { app, BrowserWindow, globalShortcut,dialog,ipcMain} from 'electron'
 import fs from 'fs'
 import path from 'path'
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
+
+const exec = require('child_process').exec;  
+exec(`node ${path.join(__dirname,'../renderer/worker.js')}`,function(err,stdout,stderr){
+  
+})
+
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }

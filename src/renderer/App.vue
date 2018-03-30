@@ -558,6 +558,13 @@
                         theme: self.theme,
                     });
                     self.editor.on('change', function(a){
+                        axios.post(`http://localhost:3000/test`,{text:a.getValue()})
+                        .then(function (response) {
+                            console.log(response)
+                        })
+                        .catch(function (error) {
+                            console.log(error)
+                        })
                         var tt = new Date().getTime() - self.keyDownTime;
                         self.keyDownTime = new Date().getTime();
                         if(self.noHigh){
