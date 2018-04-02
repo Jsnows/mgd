@@ -38,7 +38,9 @@ marked.setOptions({
         }
     }
 });
-app.use(bodyParser.urlencoded({ extended: true }))
+// app.use(bodyParser.urlencoded({limit: ‘50mb’, extended: true}));
+app.use(bodyParser.json({limit: '2mb'}));
+app.use(bodyParser.urlencoded({ extended: true , limit:'2mb'}))
 app.use(bodyParser.json())
 
 app.all('*',function (req,res,next) {

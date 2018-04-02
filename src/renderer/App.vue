@@ -33,7 +33,7 @@
             </div>
         </Col>
         <Col style="height:100%;transition:ease 0.5s;" :span="num2">
-            <div ref="div" class="div" v-html="html"></div>
+            <div ref="div" class="div" id="html"></div>
         </Col>
     </Row>
 </div>
@@ -200,7 +200,8 @@
                       }
                     })
                 },0)
-                var value = self.input;
+                document.querySelector('#html').innerHTML(self.input)
+                // var value = self.input;
                 return value
             },
             num1(){
@@ -268,7 +269,9 @@
                         self.filePath = file[0];
                         axios.post(`http://localhost:3000/test`,{text:fs.readFileSync(file[0]).toString()})
                         .then(function(response){
-                            self.input = response.data
+                            // self.input = response.data
+                            console.log(response)
+                            document.querySelector('#html').innerHTML = response.data
                         })
                         // self.input = fs.readFileSync(file[0]).toString();
                         // document.getElementById("code").innerHTML = self.input;
@@ -564,11 +567,12 @@
                     self.editor.on('change', function(a){
                         axios.post(`http://localhost:3000/test`,{text:a.getValue()})
                         .then(function (response) {
-                            self.input = response.data
                             console.log(response)
+                            document.querySelector('#html').innerHTML = response.data
+                            // self.input = response.data
                         })
                         .catch(function (error) {
-                            console.log(error)
+                            // console.log(error)
                         })
                         // var tt = new Date().getTime() - self.keyDownTime;
                         // self.keyDownTime = new Date().getTime();
