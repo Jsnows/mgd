@@ -267,11 +267,11 @@
                     if(file){
                         document.getElementsByTagName('title')[0].innerHTML = file[0];
                         self.filePath = file[0];
-                        axios.post(`http://localhost:3000/test`,{text:fs.readFileSync(file[0]).toString()})
+                        axios.post(`http://localhost:4000/worker`,{text:fs.readFileSync(file[0]).toString()})
                         .then(function(response){
                             // self.input = response.data
                             console.log(response)
-                            document.querySelector('#html').innerHTML = response.data
+                            document.querySelector('#html').innerHTML = response.data.data
                         })
                         // self.input = fs.readFileSync(file[0]).toString();
                         // document.getElementById("code").innerHTML = self.input;
@@ -565,10 +565,10 @@
                         theme: self.theme,
                     });
                     self.editor.on('change', function(a){
-                        axios.post(`http://localhost:3000/test`,{text:a.getValue()})
+                        axios.post(`http://localhost:4000/worker`,{text:a.getValue()})
                         .then(function (response) {
-                            console.log(response)
-                            document.querySelector('#html').innerHTML = response.data
+                            console.log(response.data)
+                            document.querySelector('#html').innerHTML = response.data.data
                             // self.input = response.data
                         })
                         .catch(function (error) {

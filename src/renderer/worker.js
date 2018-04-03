@@ -5,6 +5,8 @@ let bodyParser = require('body-parser')
 let app = express();
 let self = this;
 self.cache = [];
+let { ast } = require('./ast.js')
+let parse = ast();
 marked.setOptions({
     renderer: new marked.Renderer(),
     gfm: true,
@@ -50,9 +52,15 @@ app.all('*',function (req,res,next) {
     next();
 });
 
-app.post('/test',function(req,res){
-    res.end(marked(req.body.text))
+app.post('/worker',function(req,res){
+    var data = {
+        render:parse(req.body.text),
+        data:marked(req.body.text)
+    }
+    res.end(JSON.stringify(data))
 })
-app.listen(3000)
-// for(let i = 0 ; i < 1000000000 ; i++){}
-// console.log('ok')
+app.post('/test',function(req,res){
+    res.end(req.body.text)
+})
+app.listen(4000)
+
