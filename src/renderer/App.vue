@@ -59,7 +59,7 @@
     import fs from 'fs'
     import path from 'path'
     import Util from '../../static/Util.js'
-    import model from './model.js'
+    import model from './assets/model.js'
     import axios from 'axios'
     const Store = require('electron-store');
     const store = new Store();

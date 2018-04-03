@@ -8,7 +8,7 @@ import path from 'path'
  */
 
 const exec = require('child_process').exec;  
-exec(`node ${path.join(__dirname,'../renderer/worker.js')}`,function(err,stdout,stderr){
+exec(`node ${path.join(__dirname,'../renderer/assets/worker.js')}`,function(err,stdout,stderr){
   
 })
 
