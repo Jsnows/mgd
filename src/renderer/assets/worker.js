@@ -7,6 +7,23 @@ let self = this;
 self.cache = [];
 let { ast } = require('./ast.js')
 let parse = ast();
+function ss(o) {
+    // Note: cache should not be re-used by repeated calls to JSON.stringify.
+    var cache = [];
+    JSON.stringify(o, function(key, value) {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) {
+                // Circular reference found, discard key
+                return;
+            }
+            // Store value in our collection
+            cache.push(value);
+        }
+        return value;
+    });
+    return o
+    cache = null; // Enable garbage collection
+}
 marked.setOptions({
     renderer: new marked.Renderer(),
     gfm: true,
@@ -40,7 +57,7 @@ marked.setOptions({
         }
     }
 });
-// app.use(bodyParser.urlencoded({limit: ‘50mb’, extended: true}));
+
 app.use(bodyParser.json({limit: '2mb'}))
 app.use(bodyParser.urlencoded({ extended: true , limit:'2mb'}))
 app.use(bodyParser.json())
@@ -51,16 +68,20 @@ app.all('*',function (req,res,next) {
     res.header("Access-Control-Allow-Methods","POST,GET");
     next();
 });
-
+let last = ''
 app.post('/worker',function(req,res){
+    var value = marked(req.body.text);
     var data = {
-        render:parse(req.body.text),
-        data:marked(req.body.text)
+        data:value
     }
     res.end(JSON.stringify(data))
 })
 app.post('/test',function(req,res){
     res.end(req.body.text)
 })
+app.get('/test',function(req,res){
+    res.end('ok')
+})
+
 app.listen(4000)
 
