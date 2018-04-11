@@ -7,7 +7,7 @@ import path from 'path'
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
 
-const child = require('child_process').exec(`node ${path.join(__dirname,'../renderer/assets/worker.js')}`,function(err,stdout,stderr){})
+// const child = require('child_process').exec(`node ${path.join(__dirname,'../renderer/assets/worker.js')}`,function(err,stdout,stderr){})
 
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')

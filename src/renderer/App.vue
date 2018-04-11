@@ -78,6 +78,7 @@
         },
         data: function() {
             return {
+                editContent:'',
                 apiUrl:'http://www.jsnows.com',
                 input:'',
                 fontsize:store.get('fontsize') || 18,
@@ -200,7 +201,7 @@
                       }
                     })
                 },0)
-                document.querySelector('#html').innerHTML(self.input)
+                // document.querySelector('#html').innerHTML(self.input)
                 // var value = self.input;
                 return value
             },
@@ -291,7 +292,7 @@
                     });
                 }else{
                     if(!self.input){
-                        self.$Message.warning('内有任何内容');
+                        self.$Message.warning('没有任何内容');
                     }else{
                         remote.dialog.showSaveDialog(self.saveFileOptions, function (filename) {
                             if(filename){
@@ -565,11 +566,16 @@
                         theme: self.theme,
                     });
                     self.editor.on('change', function(a){
+                        if(self.editContent == a.getValue()){
+                            return
+                        }else{
+                            self.editContent = a.getValue()
+                        }
                         axios.post(`http://localhost:4000/worker`,{text:a.getValue()})
                         .then(function (response) {
                             console.log(response.data)
                             document.querySelector('#html').innerHTML = response.data.data
-                            // self.input = response.data
+                            self.input = a.getValue();
                         })
                         .catch(function (error) {
                             // console.log(error)

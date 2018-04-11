@@ -7,23 +7,8 @@ let self = this;
 self.cache = [];
 let { ast } = require('./ast.js')
 let parse = ast();
-function ss(o) {
-    // Note: cache should not be re-used by repeated calls to JSON.stringify.
-    var cache = [];
-    JSON.stringify(o, function(key, value) {
-        if (typeof value === 'object' && value !== null) {
-            if (cache.indexOf(value) !== -1) {
-                // Circular reference found, discard key
-                return;
-            }
-            // Store value in our collection
-            cache.push(value);
-        }
-        return value;
-    });
-    return o
-    cache = null; // Enable garbage collection
-}
+let {diff , contrast } = require('./diff.js')
+
 marked.setOptions({
     renderer: new marked.Renderer(),
     gfm: true,
@@ -70,18 +55,27 @@ app.all('*',function (req,res,next) {
 });
 let last = ''
 app.post('/worker',function(req,res){
-    var value = marked(req.body.text);
+    var value = marked(req.body.text)
+    // 去除所有的换行符
+    var dom = parse(`<div>${value.replace(/\n/g,'')}</div>`)
     var data = {
         data:value
     }
+    if(last){
+        contrast(last,dom)
+    }else{
+        console.log('没有last')
+    }
     res.end(JSON.stringify(data))
+    // 最后记录上一次dom节点
+    last = parse(`<div>${value.replace(/\n/g,'')}</div>`)
 })
-app.post('/test',function(req,res){
-    res.end(req.body.text)
-})
-app.get('/test',function(req,res){
-    res.end('ok')
-})
+// app.post('/test',function(req,res){
+//     res.end(req.body.text)
+// })
+// app.get('/test',function(req,res){
+//     res.end('ok')
+// })
 
 app.listen(4000)
 

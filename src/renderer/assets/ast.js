@@ -4,7 +4,6 @@ function ast() {
     var startTagOpen = new RegExp('^<' + qnameCapture); //匹配开始标签的 <
     var startTagClose = /^\s*(\/?)>/;       //匹配 开始标签的 >
     var endTag = new RegExp('^<\\/' + qnameCapture + '[^>]*>'); //匹配结束标签 </xxx>
-
     var singleAttrIdentifier = /([^\s"'<>/=]+)/;
     var singleAttrAssign = /(?:=)/;
     var singleAttrValues = [
