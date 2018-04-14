@@ -57,18 +57,18 @@ let last = ''
 app.post('/worker',function(req,res){
     var value = marked(req.body.text)
     // 去除所有的换行符
-    var dom = parse(`<div>${value.replace(/\n/g,'')}</div>`)
+    // var dom = parse(`<div>${value.replace(/\n/g,'')}</div>`)
     var data = {
         data:value
     }
-    if(last){
-        contrast(last,dom)
-    }else{
-        console.log('没有last')
-    }
+    // if(last){
+    //     contrast(last,dom)
+    // }else{
+    //     console.log('没有last')
+    // }
     res.end(JSON.stringify(data))
     // 最后记录上一次dom节点
-    last = parse(`<div>${value.replace(/\n/g,'')}</div>`)
+    // last = parse(`<div>${value.replace(/\n/g,'')}</div>`)
 })
 // app.post('/test',function(req,res){
 //     res.end(req.body.text)
@@ -78,3 +78,4 @@ app.post('/worker',function(req,res){
 // })
 
 app.listen(4000)
+

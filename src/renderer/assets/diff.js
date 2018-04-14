@@ -66,7 +66,7 @@ function contrast(oldDom,newDom){
             var same = false
             for(let a = 0 ; a < newDom.children.length ; a++){
                 // 如果DOM相同就标记
-                if(diffTag(oldDom.children[i],newDom.children[a]) && !newDom.children[a].has && !oldDom.children[i].used && newDom.children[a].has !== 0){
+                if(diffTag(oldDom.children[i],newDom.children[a]) && !oldDom.children[i].used && !newDom.children[a].has && !newDom.children[a].has !== 0){
                     same = true
                     newDom.children[a].has = i
                     oldDom.children[i].used = true
@@ -81,12 +81,12 @@ function contrast(oldDom,newDom){
                 del.push(obj)
             }
         }
-        for(let i = 0 ; i < newDom.children.length ; i++){
-            try{
-                console.log(newDom.children[i].has)
-            }catch(err){
 
+        for(let i = 0 ; i < newDom.children.length ; i++){
+            if(newDom.children[i].has !== undefined){
+                console.log(newDom.children[i].has)
             }
+            
             delete newDom.children[i].children
             delete newDom.children[i].parent
             delete newDom.children[i].attrsList

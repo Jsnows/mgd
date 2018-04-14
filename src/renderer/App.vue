@@ -6,13 +6,13 @@
                 <i-option v-for="item in themeArr" :value="item">{{ item }}</i-option>
             </i-select>
         </Col>
-        <Col span="2" offset="1">
+        <!-- <Col span="2" offset="1">
             高性能 : 
             <i-switch @on-change="performance">
                 <span slot="open">开</span>
                 <span slot="close">关</span>
             </i-switch>
-        </Col>
+        </Col> -->
         <!-- <Col span="2" offset="1">
             <Button size="small" @click="handleRender()" class="button" type="ghost">上传至博客</Button>
         </Col>
@@ -26,13 +26,13 @@
             <Button size="small" @click="changeFile()" class="button" type="ghost">修改</Button>
         </Col> -->
     </Row>
-    <Row style="height:92%;">
+    <Row style="height:100%;">
         <Col style="height:100%;transition:ease 0.5s;" :span="num1">
             <div ref="textarea" style="height:100%;">
                 <textarea id="code" class="textarea" v-model="input"></textarea>
             </div>
         </Col>
-        <Col style="height:100%;transition:ease 0.5s;" :span="num2">
+        <Col style="height:100%;transition:ease 0.5s;border-left:2px solid #888" :span="num2">
             <div ref="div" class="div" id="html"></div>
         </Col>
     </Row>
@@ -558,9 +558,9 @@
                     self.$refs.textarea.style.fontSize = self.fontsize+'px';
                     self.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
                         mode:'markdown',
-                        lineNumbers: true,
+                        lineNumbers: false,
                         autoCloseBrackets: true,
-                        matchBrackets: true,
+                        matchBrackets: false,
                         showCursorWhenSelecting: true,
                         lineWrapping: true,  // 长句子折行
                         theme: self.theme,
