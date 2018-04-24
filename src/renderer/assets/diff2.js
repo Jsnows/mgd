@@ -1,8 +1,8 @@
-var o = 'ABCABBBCBABBSA';
-var n = 'CBABACABCBSAA';
-var oldArr = o.split('');
-var newArr = n.split('');
-
+// var o = 'ABC';
+// var n = 'ABD';
+// var oldArr = o.split('');
+// var newArr = n.split('');
+exports.myers = myers
 function myers(oArr,nArr,diff){
     let maxPath = []; //最短路径
     let cache = []; //临时存储路劲
@@ -61,10 +61,17 @@ function myers(oArr,nArr,diff){
         }
         // 添加首尾元素
         maxPath.push([oArr.length,nArr.length])
-        maxPath.unshift([0,0])
+        if(maxPath[0][0] !== 0 && maxPath[0][1] !== 0){
+            // 没有从起点开始就进行补全
+            maxPath.unshift([0,0])
+        }
         for(let i = 0 ; i < maxPath.length ; i++){
             if(maxPath[i+1]){
-                var dValue = [maxPath[i+1][0]-maxPath[i][0]-1,maxPath[i+1][1]-maxPath[i][1]-1];
+                if(maxPath[i][2]){
+                    continue
+                }else{
+                    var dValue = [maxPath[i+1][0]-maxPath[i][0],maxPath[i+1][1]-maxPath[i][1]];
+                }
                 while(dValue[0] > 0 || dValue[1] > 0){
                     if(dValue[0] > 0){
                         var sert = [maxPath[i][0] + 1,maxPath[i][1]]
@@ -113,22 +120,27 @@ function myers(oArr,nArr,diff){
     for(let i = 0 ; i < all.length ; i++){
         findPath(all[i],all)
     }
+    for(let i = 0 ; i < maxPath.length ; i++){
+        maxPath[i].push(1)
+    }
     completion(maxPath)
+    // console.log(maxPath)
     return maxPath
 }
 
-var maxPath = myers(oldArr,newArr)
-for(let i = 0 ; i < maxPath.length ; i++){
-    if(maxPath[i+1]){
-        var d = [maxPath[i+1][0]-maxPath[i][0],maxPath[i+1][1]-maxPath[i][1]]
-        if(d[0] == 1 && d[1] == 1){
-            console.log(`  ${n[maxPath[i][1]]}`)
-        }else if(d[0] == 1 && d[1] == 0){
-            console.log(`- ${o[maxPath[i][0]]}`)
-        }else if(d[0] == 0 && d[1] == 1){
-            console.log(`+ ${n[maxPath[i][1]]}`)
-        }
-    }
-}
+// var maxPath = myers(oldArr,newArr)
+
+// for(let i = 0 ; i < maxPath.length ; i++){
+//     if(maxPath[i+1]){
+//         var d = [maxPath[i+1][0]-maxPath[i][0],maxPath[i+1][1]-maxPath[i][1]]
+//         if(d[0] == 1 && d[1] == 1){
+//             console.log(`  ${n[maxPath[i][1]]}`)
+//         }else if(d[0] == 1 && d[1] == 0){
+//             console.log(`- ${o[maxPath[i][0]]}`)
+//         }else if(d[0] == 0 && d[1] == 1){
+//             console.log(`+ ${n[maxPath[i][1]]}`)
+//         }
+//     }
+// }
 
 

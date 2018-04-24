@@ -7,7 +7,8 @@ let self = this;
 self.cache = [];
 let { ast } = require('./ast.js')
 let parse = ast();
-let {diff , contrast } = require('./diff.js')
+let { diff } = require('./diff.js')
+let { myers } = require('./diff2.js')
 
 marked.setOptions({
     renderer: new marked.Renderer(),
@@ -57,18 +58,32 @@ let last = ''
 app.post('/worker',function(req,res){
     var value = marked(req.body.text)
     // 去除所有的换行符
-    // var dom = parse(`<div>${value.replace(/\n/g,'')}</div>`)
+    var dom = parse(`<div>${value.replace(/\n/g,'')}</div>`)
     var data = {
         data:value
     }
-    // if(last){
-    //     contrast(last,dom)
-    // }else{
-    //     console.log('没有last')
-    // }
+    if(last){
+        var maxPath = myers(last.children,dom.children,diff)
+        var n = dom.children;
+        var o = last.children;
+        for(let i = 0 ; i < maxPath.length ; i++){
+            if(maxPath[i+1]){
+                var d = [maxPath[i+1][0]-maxPath[i][0],maxPath[i+1][1]-maxPath[i][1]]
+                if(d[0] == 1 && d[1] == 1){
+                    console.log(`  ${n[maxPath[i][1]].tag}`)
+                }else if(d[0] == 1 && d[1] == 0){
+                    console.log(`- ${o[maxPath[i][0]].tag}`)
+                }else if(d[0] == 0 && d[1] == 1){
+                    console.log(`+ ${n[maxPath[i][1]].tag}`)
+                }
+            }
+        }
+    }else{
+        console.log('没有last')
+    }
     res.end(JSON.stringify(data))
     // 最后记录上一次dom节点
-    // last = parse(`<div>${value.replace(/\n/g,'')}</div>`)
+    last = parse(`<div>${value.replace(/\n/g,'')}</div>`)
 })
 // app.post('/test',function(req,res){
 //     res.end(req.body.text)
