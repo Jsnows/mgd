@@ -558,7 +558,7 @@
                     self.$refs.textarea.style.fontSize = self.fontsize+'px';
                     self.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
                         mode:'markdown',
-                        lineNumbers: false,
+                        lineNumbers: true,
                         autoCloseBrackets: true,
                         matchBrackets: false,
                         showCursorWhenSelecting: true,
