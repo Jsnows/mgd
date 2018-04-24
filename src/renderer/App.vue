@@ -25,6 +25,9 @@
         <Col span="2" offset="1">
             <Button size="small" @click="changeFile()" class="button" type="ghost">修改</Button>
         </Col> -->
+        <Col span="2" offset="1">
+            <Button size="small" @click="toHTML()" class="button" type="ghost">导出到html</Button>
+        </Col>
     </Row>
     <Row style="height:95%;">
         <Col style="height:100%;transition:ease 0.5s;" :span="num1">
@@ -78,6 +81,7 @@
         },
         data: function() {
             return {
+                htmlTem:'',
                 editContent:'',
                 apiUrl:'http://www.jsnows.com',
                 input:'',
@@ -273,6 +277,7 @@
                             // self.input = response.data
                             console.log(response)
                             document.querySelector('#html').innerHTML = response.data.data
+                            self.htmlTem = response.data.data;
                         })
                         // self.input = fs.readFileSync(file[0]).toString();
                         // document.getElementById("code").innerHTML = self.input;
@@ -564,7 +569,7 @@
                         showCursorWhenSelecting: true,
                         lineWrapping: true,  // 长句子折行
                         theme: self.theme,
-                    });
+                    })
                     self.editor.on('change', function(a){
                         if(self.editContent == a.getValue()){
                             return
@@ -575,27 +580,12 @@
                         .then(function (response) {
                             console.log(response.data)
                             document.querySelector('#html').innerHTML = response.data.data
+                            self.htmlTem = response.data.data;
                             self.input = a.getValue();
                         })
                         .catch(function (error) {
                             // console.log(error)
                         })
-                        // var tt = new Date().getTime() - self.keyDownTime;
-                        // self.keyDownTime = new Date().getTime();
-                        // if(self.noHigh){
-                        //     self.input = a.getValue();
-                        //     return
-                        // }
-                        // if(tt < 400){
-                        //     clearInterval(self.timer);
-                        //     self.timer = setTimeout(function(){
-                        //         self.input = a.getValue();
-                        //     },250)
-                        // }else{
-                        //     setTimeout(function(){
-                        //         self.input = a.getValue();    
-                        //     },0)
-                        // }
                     });
                 },0)
             },
@@ -644,6 +634,33 @@
                     model.init(self);
                 })
                 win.loadURL(winURL);
+            },
+            toHTML(){
+                let self = this;
+                var html = {
+                    title: '保存文件',
+                    filters: [
+                      { name: '未命名', extensions: ['html'] }
+                    ]
+                }
+                remote.dialog.showSaveDialog(html, function(filePath) {
+                    if(filePath){
+                        // 提取文件名
+                        var filename = filePath.split('/')
+                        filename = filename[filename.length-1].split('.')[0]
+                        var template = fs.readFileSync(path.join(__dirname,'../../static/template.html')).toString()
+                        template = template.replace(/{{title}}/,filename)
+                        template = template.replace(/{{text}}/,self.htmlTem)
+                        fs.writeFile(filePath, template, (err) => {
+                            if (err){
+                                console.log(err);
+                                return
+                            };
+                            self.filePath = filePath;
+                            self.$Message.success('导出成功');
+                        });
+                    }
+                })
             }
         },
         beforeCreate(){
@@ -842,25 +859,14 @@
         /*border:1px solid #000;*/
     }
     h1,h2,h3,h4,h5,h6{
-        padding-top: 1rem;
-        padding-bottom: 1rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
     }
     .ul ul{
         padding: 0px;
     }
     .windowImg{
         background-image: url(../../static/logo.png);
-    }
-    .example {
-        width: 100px;
-        height: 100px;
-        transform: translate3d(0, -100px, 0);
-    }
-    .fold-enter-active, .fold-leave-active {
-        transition: all .5s;
-    }
-    .fold-enter, .fold-leave-active {
-        transform: translate3d(0, 0, 0);
     }
 
 </style>
