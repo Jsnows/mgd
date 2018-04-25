@@ -272,7 +272,7 @@
                     if(file){
                         document.getElementsByTagName('title')[0].innerHTML = file[0];
                         self.filePath = file[0];
-                        axios.post(`http://localhost:4000/worker`,{text:fs.readFileSync(file[0]).toString()})
+                        axios.post(`http://localhost:${self.port}/worker`,{text:fs.readFileSync(file[0]).toString()})
                         .then(function(response){
                             // self.input = response.data
                             console.log(response)
@@ -576,7 +576,7 @@
                         }else{
                             self.editContent = a.getValue()
                         }
-                        axios.post(`http://localhost:4000/worker`,{text:a.getValue()})
+                        axios.post(`http://localhost:${self.port}/worker`,{text:a.getValue()})
                         .then(function (response) {
                             console.log(response.data)
                             document.querySelector('#html').innerHTML = response.data.data
@@ -674,6 +674,7 @@
         },
         created(){
             let self = this;
+            self.port = process.env.port || 4000;
             self.theme = store.get('theme') || 'material';
             // 快捷键设置初始化
             // self._shortcutkeyInit();

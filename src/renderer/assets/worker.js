@@ -88,9 +88,9 @@ app.post('/worker',function(req,res){
 // app.post('/test',function(req,res){
 //     res.end(req.body.text)
 // })
-// app.get('/test',function(req,res){
-//     res.end('ok')
-// })
-
-app.listen(4000)
+app.get('/test',function(req,res){
+    res.end('ok')
+})
+var port = process.env.port || 4000;
+app.listen(port)
 
