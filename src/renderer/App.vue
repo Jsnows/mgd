@@ -1,7 +1,7 @@
 <template>
 <div style="height:100%;">
     <Row type="flex" align="middle" style="background-color:#3b454c;height:5%;color:#fff;">
-        <Col span="3">
+        <Col span="3" offset="18">
             <i-select size="small" style="width:150px;" @on-change="changeHighlight" :filterable="true" placeholder="切换高亮主题" class="ul" v-model="theme">
                 <i-option v-for="item in themeArr" :value="item">{{ item }}</i-option>
             </i-select>

@@ -29,7 +29,9 @@ function createWindow () {
   // if (shouldQuit) return app.quit()
   var filePath = '';
   mainWindow = new BrowserWindow({
+    autoHideMenuBar: true,
     useContentSize: true,
+    titleBarStyle: 'hidden',
     minWidth:1000,
     minHeight:600,
     width:2000,
