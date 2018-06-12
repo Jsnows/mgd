@@ -45,7 +45,6 @@
 
 <script>
     import CodeMirror from 'codemirror'
-    import Parallel from 'paralleljs'
     import marked from 'marked'
     import high from 'highlight.js'
     import {remote,app,ipcRenderer} from 'electron'
