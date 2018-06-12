@@ -1,3 +1,4 @@
+const {remote} = require('electron')
 const model = {
     init:function (self) {
         _menu(self);
@@ -97,7 +98,22 @@ function _menu(self){
         label: '创建新窗口',
         accelerator: 'CmdOrCtrl+N',
         click:()=>{
-          self.openNewWindow();
+          const winURL = process.env.NODE_ENV === 'development'
+              ? `http://localhost:9080`
+              : `file://${__dirname}/index.html`
+          var win = new remote.BrowserWindow({
+              useContentSize: true,
+              minWidth:1000,
+              minHeight:600,
+              width:2000,
+              height:2000,
+              backgroundColor:'#2e2c29',
+              show:false
+          })
+          win.on('close', function () {
+              win = null
+          })
+          win.loadURL(winURL);
         }
       },{
         label: '关闭',

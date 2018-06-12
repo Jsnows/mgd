@@ -1,7 +1,7 @@
 <template>
 <div style="height:100%;">
     <Row type="flex" align="middle" style="background-color:#3b454c;height:5%;color:#fff;">
-        <Col span="3" offset="18">
+        <Col span="3" offset="15">
             <i-select size="small" style="width:150px;" @on-change="changeHighlight" :filterable="true" placeholder="切换高亮主题" class="ul" v-model="theme">
                 <i-option v-for="item in themeArr" :value="item">{{ item }}</i-option>
             </i-select>
@@ -13,10 +13,10 @@
                 <span slot="close">关</span>
             </i-switch>
         </Col> -->
-        <!-- <Col span="2" offset="1">
+        <Col span="2" offset="1">
             <Button size="small" @click="handleRender()" class="button" type="ghost">上传至博客</Button>
         </Col>
-        <Col span="2" offset="1">
+        <!-- <Col span="2" offset="1">
             <Button size="small" @click="pull()" class="button" type="ghost">同步远程文章</Button>
         </Col>
         <Col span="2" offset="1">
@@ -30,34 +30,24 @@
         </Col>
     </Row>
     <Row style="height:95%;">
-        <Col style="height:100%;transition:ease 0.5s;" :span="num1">
+        <!-- <Col style="height:100%;transition:ease 0.5s;" :span="num1"> -->
+        <Col style="height:100%;transition:ease 0.5s;" v-show="num1" :span="num1">
             <div ref="textarea" style="height:100%;">
                 <textarea id="code" class="textarea" v-model="input"></textarea>
             </div>
         </Col>
-        <Col style="height:100%;transition:ease 0.5s;border-left:2px solid #888" :span="num2">
-            <div ref="div" class="div" id="html"></div>
+        <Col style="height:100%;border-left:2px solid #888" :span="num2">
+            <div ref="div" class="div" v-html="html"></div>
         </Col>
     </Row>
 </div>
 </template>
 
 <script>
-    /**
-     *  引入工具类库
-     *  example : import apiName from 'api/apiName'
-     */
     import CodeMirror from 'codemirror'
     import Parallel from 'paralleljs'
-    /**
-     *  引入组件 以及 组件mutation
-     *  example : import comName from 'components/com-name/com-name'
-     *  example : import * as comname_mt from 'components/com-name/com-name-mutation-types'
-     */
     import marked from 'marked'
-    import {Row , Col , Button, Upload,Tooltip,Modal} from 'iview'
     import high from 'highlight.js'
-    import Clipboard from 'clipboard'
     import {remote,app,ipcRenderer} from 'electron'
     import fs from 'fs'
     import path from 'path'
@@ -67,23 +57,17 @@
     const Store = require('electron-store');
     const store = new Store();
 
-    /**
-     *  组件实例对象
-     */
+    
     export default {
         components: {
-            Row,
-            Col,
-            Button,
-            Upload,
-            Tooltip,
-            Modal
+
         },
         data: function() {
             return {
                 htmlTem:'',
                 editContent:'',
                 apiUrl:'http://www.jsnows.com',
+                // apiUrl:'http://localhost:8081',
                 input:'',
                 fontsize:store.get('fontsize') || 18,
                 fonthtmlsize:store.get('fonthtmlsize') || 18,
@@ -190,23 +174,21 @@
         computed: {
             html(){
                 let self = this;
-                // var value = marked(self.input);
+                var value = self.htmlTem
                 // 调用外部浏览器打开markdown文档链接，否则点击链接将会在编辑器内部跳转
                 setTimeout(function(){
                     const shell = require('electron').shell
                     const links = document.querySelectorAll('a[href]')
                     Array.prototype.forEach.call(links, function (link) {
-                      const url = link.getAttribute('href')
-                      if (url.indexOf('http') === 0) {
-                        link.addEventListener('click', function (e) {
-                          e.preventDefault()
-                          shell.openExternal(url)
-                        })
-                      }
+                        const url = link.getAttribute('href')
+                        if (url.indexOf('http') === 0 || url.indexOf('https') === 0) {
+                            link.addEventListener('click', function (e) {
+                                e.preventDefault()
+                                shell.openExternal(url)
+                            })
+                        }
                     })
                 },0)
-                // document.querySelector('#html').innerHTML(self.input)
-                // var value = self.input;
                 return value
             },
             num1(){
@@ -214,7 +196,7 @@
                 if(!self.show){
                     return 12
                 }else{
-                    return 1
+                    return 0
                 }
             },
             num2(){
@@ -222,7 +204,7 @@
                 if(!self.show){
                     return 12
                 }else{
-                    return 23
+                    return 24
                 }
             }
         },
@@ -272,15 +254,9 @@
                     if(file){
                         document.getElementsByTagName('title')[0].innerHTML = file[0];
                         self.filePath = file[0];
-                        axios.post(`http://localhost:${self.port}/worker`,{text:fs.readFileSync(file[0]).toString()})
-                        .then(function(response){
-                            // self.input = response.data
-                            console.log(response)
-                            document.querySelector('#html').innerHTML = response.data.data
-                            self.htmlTem = response.data.data;
-                        })
-                        // self.input = fs.readFileSync(file[0]).toString();
-                        // document.getElementById("code").innerHTML = self.input;
+                        self.input = fs.readFileSync(file[0]).toString()
+                        // 交由worker解析语法
+                        self.worker.send(fs.readFileSync(file[0]).toString())
                         self.editor.setValue(fs.readFileSync(file[0]).toString());
                     }
                 });
@@ -328,97 +304,6 @@
                         });
                     }
                 })
-            },
-            _shortcutkeyInit(){
-                let self = this;
-                window.onkeydown=function(event){
-                    // var e = event || window.event || arguments.callee.caller.arguments[0];
-                    // if(self.key.indexOf(e.keyCode)==-1){
-                    //     self.key.push(e.keyCode)  
-                    // }
-                    // console.log(e.keyCode);
-                    // console.log(self.key[0]+self.key[1] == 170);
-                    // if(Util.checkKeyCode(self.key,[91,79])){
-                    //     // 打开快捷键91,79
-                    //     self.openFile();
-                    //     e.preventDefault();  
-                    //     window.event.returnValue = false;
-                    //     return
-                    // }else if(Util.checkKeyCode(self.key,[91,83])){
-                    //     // 保存快捷键91,83
-                    //     self.saveFile();
-                    //     e.preventDefault();  
-                    //     window.event.returnValue = false;
-                    //     return
-                    // }else if(Util.checkKeyCode(self.key,[91,83,16])){
-                    //     self.otherSaveFile();
-                    //     e.preventDefault();  
-                    //     window.event.returnValue = false;
-                    //     return
-                    // }else if(Util.checkKeyCode(self.key,[9])){
-                    //     e.preventDefault();  
-                    //     window.event.returnValue = false;
-                    // }
-                };
-                window.onkeyup=function(event){
-                    var e = event || window.event || arguments.callee.caller.arguments[0];
-                };
-            },
-            _toastInit(){
-                let self = this;
-                var clipboard = new Clipboard('.btn',{
-                    text: function(){
-                        if(self.input == ''){
-                            self.$Message.warning('没有可复制的内容');
-                        }
-                        return self.input;
-                    }
-                });
-                clipboard.on('success', function(e){
-                    self.$Message.success('已经将内容复制到剪切板');
-                });
-                clipboard.on('error', function(e) {
-                    self.$Message.error('没有复制成功，请使用chrome浏览器');
-                });
-            },
-            _markedInit(){
-                let self = this;
-                marked.setOptions({
-                    renderer: new marked.Renderer(),
-                    gfm: true,
-                    tables: true,
-                    breaks: true,
-                    pedantic: true,
-                    sanitize: false,
-                    smartLists: true,
-                    smartypants: true,
-                    xhtml: true,
-                    highlight: function (code) {
-                        if(self.noHigh){
-                            return code
-                        }
-                        if(self.cache.length !== 0){
-                            for(let i = 0 ; i < self.cache.length ; i++){
-                                if(self.cache[i].code == code){
-                                    return self.cache[i].highCode;
-                                }
-                            }
-                            var obj = {
-                                code:code,
-                                highCode:high.highlightAuto(code).value
-                            }
-                            self.cache.push(obj);
-                            return obj.highCode;    
-                        }else{
-                            var obj = {
-                                code:code,
-                                highCode:high.highlightAuto(code).value
-                            }
-                            self.cache.push(obj);
-                            return obj.highCode;
-                        }
-                    }
-                });
             },
             changeHighlight(theme){
                 let self = this;
@@ -559,81 +444,34 @@
                 require('../../node_modules/codemirror/mode/javascript/javascript.js');
                 setTimeout(function(){
                     // 关闭启动图
-                    window.hiddenWindow();
+                    // window.hiddenWindow();
                     self.$refs.textarea.style.fontSize = self.fontsize+'px';
                     self.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
                         mode:'markdown',
-                        lineNumbers: true,
+                        lineNumbers: false,
                         autoCloseBrackets: true,
                         matchBrackets: false,
                         showCursorWhenSelecting: true,
                         lineWrapping: true,  // 长句子折行
                         theme: self.theme,
                     })
+                    remote.getCurrentWindow().show()
                     self.editor.on('change', function(a){
                         if(self.editContent == a.getValue()){
                             return
                         }else{
                             self.editContent = a.getValue()
                         }
-                        axios.post(`http://localhost:${self.port}/worker`,{text:a.getValue()})
-                        .then(function (response) {
-                            console.log(response.data)
-                            document.querySelector('#html').innerHTML = response.data.data
-                            self.htmlTem = response.data.data;
-                            self.input = a.getValue();
-                        })
-                        .catch(function (error) {
-                            // console.log(error)
-                        })
+                        // 交由worker计算
+                        self.worker.send(a.getValue())
+                        self.input = a.getValue();
                     });
+                    
                 },0)
             },
             performance(status){
                 let self = this;
                 self.noHigh = status;
-            },
-            help(){
-                let self = this;
-                const winURL = process.env.NODE_ENV === 'development'
-                    ? `http://localhost:9080`
-                    : `file://${__dirname}/index.html`
-                var win = new remote.BrowserWindow({
-                    useContentSize: true,
-                    minWidth:1000,
-                    minHeight:600,
-                    width:2000,
-                    height:2000,
-                    backgroundColor:'#2e2c29',
-                })
-                win.on('close', function () {
-                    win = null
-                })
-                win.on('blur',function(){
-                    model.init(self);
-                })
-                win.loadURL(winURL);
-            },
-            openNewWindow(){
-                let self = this;
-                const winURL = process.env.NODE_ENV === 'development'
-                    ? `http://localhost:9080`
-                    : `file://${__dirname}/index.html`
-                var win = new remote.BrowserWindow({
-                    useContentSize: true,
-                    minWidth:1000,
-                    minHeight:600,
-                    width:2000,
-                    height:2000,
-                    backgroundColor:'#2e2c29',
-                })
-                win.on('close', function () {
-                    win = null
-                })
-                win.on('blur',function(){
-                    model.init(self);
-                })
-                win.loadURL(winURL);
             },
             toHTML(){
                 let self = this;
@@ -665,7 +503,7 @@
         },
         beforeCreate(){
             let self = this;
-            setTimeout(function(){
+            self.$nextTick(function(){
                 // 字体初始化
                 self.$refs.textarea.style.fontSize = self.fontsize+'px';
                 self.$refs.div.style.fontSize = self.fonthtmlsize+'px';
@@ -674,14 +512,15 @@
         },
         created(){
             let self = this;
-            self.port = process.env.port || 4000;
+            model.init(self);
+            self.worker = require('child_process').fork(path.join(__dirname,'../../public/worker.js'))
+            self.worker.on('message',function(data){
+                self.htmlTem = data.data;
+            })
+            remote.getCurrentWindow().on('close',function(){
+                self.worker.kill();
+            })
             self.theme = store.get('theme') || 'material';
-            // 快捷键设置初始化
-            // self._shortcutkeyInit();
-            // 提示初始化
-            self._toastInit();
-            // marked配置初始化
-            // self._markedInit();
             // 初始化编辑器 
             self.initEditor();
             model.init(self);
@@ -703,10 +542,12 @@
                 if(self.input == '' && self.filePath == ''){
                     document.getElementsByTagName('title')[0].innerHTML = path;
                     self.filePath = path;
-                    self.input = fs.readFileSync(path).toString();
-                    document.getElementById("code").innerHTML = self.input;
-                    self.editor.setValue(self.input);
-                    process.env._openFilePath = '';
+                    let value = fs.readFileSync(path).toString();
+                    self.worker.send(value)
+                    setTimeout(function(){
+                        self.editor.setValue(value)    
+                    },0)
+                    process.env._openFilePath = ''
                 }
             }
         }
@@ -771,25 +612,6 @@
     *{
         -webkit-tap-highlight-color:transparent;
     }
-    .textarea{
-        overflow:auto;
-        background-attachment:fixed;
-        background-repeat:no-repeat;
-        border-style:solid;
-        border-color:#FFFFFF;
-        border-radius: 5px;
-        float:left;
-        width:100%;
-        height:100%;
-        overflow:auto;
-        /*outline:thin solid #b0b0b0;*/
-        outline:none;
-        resize:none;
-        margin: 0 2px;
-        padding:10px;
-        background-color:#e1d2b2;
-        color:#4d4d4d;
-    }
     .div{
         float:left;
         width:100%;
@@ -797,8 +619,6 @@
         margin: 0 2px;
         padding:10px 50px;
         overflow:auto;
-        /*background-color: #303548;*/
-        /*color:#fff;*/
     }
     .showDiv{
         position:absolute;
@@ -819,26 +639,21 @@
     .button{
         color:#fff;
     }
-    pre{border:1px solid #a9a9a9; border-radius: 5px; padding:20px;}
-    /*code{color:#c7254e;}*/
     pre {
-      margin: 10px 0px;
-      margin-bottom: 1rem;
-      overflow: auto;
-      -ms-overflow-style: scrollbar;
-    }
-    table {
-        margin:10px 0px;
+        border:1px solid #a9a9a9; 
+        border-radius: 5px; 
+        padding:10px;
+        margin: 10px 0px;
+        margin-bottom: 1rem;
+        overflow: auto;
+        -ms-overflow-style: scrollbar;
+        display: block;
+        font-size: 87.5%;
+        color: #363636; 
     }
     code {
-      font-size: 87.5%;
       color: #e83e8c;
       word-break: break-word;
-    }
-    pre {
-      display: block;
-      font-size: 87.5%;
-      color: #363636;
     }
     pre code {
       font-size: inherit;
@@ -846,9 +661,8 @@
       word-break: normal;
     }
     p{
+        margin:10px 0px;
         margin-bottom: 10px;
-        /*padding-left:20px;*/
-        /*text-indent:2rem;*/
     }
     table{
         width: 100%;
@@ -869,5 +683,10 @@
     .windowImg{
         background-image: url(../../static/logo.png);
     }
-
+    .CodeMirror-lines{
+        padding:10px;
+    }
+    .CodeMirror{
+        height:100%;
+    }
 </style>

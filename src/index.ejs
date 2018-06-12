@@ -2,35 +2,8 @@
 <html lang="zh" style="height:100%;">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
-        <meta name="apple-mobile-web-app-title" content="newPage">
-        <meta name="format-detection" content="telephone=no">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <meta name="description" content="">
-        <meta name="keywords" content="">
-        <link rel="apple-touch-icon-precomposed">
         <title>编辑器</title>
-        <style>
-            body{
-                margin: 0px;
-                padding: 0px;
-            }
-            .box{
-               display: flex;
-               justify-content:center;
-               align-items:center;
-               background:#99e2f9;
-               height:100%;
-               width: 100%;
-               margin: 0px;
-               padding: 0px;
-               transition: ease 0.5s;
-               overflow: hidden;
-           }
-        </style>
         <% if (htmlWebpackPlugin.options.nodeModules) { %>
-            <!-- Add `node_modules/` to global paths so `require` works properly in development -->
             <script>
                 require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
             </script>
@@ -38,29 +11,10 @@
     </head>
     <body style="height:100%;overflow: hidden;">
         <!-- page start -->
-        <div id="showWindow" class="box">
-            <div>
-                <img style="margin-right:30px" width="250px" height="250px" src="./static/logo.png" alt="">
-            </div>
-            <div>
-                <h1 style="font-family:Sans-serif;">欢迎使用</h1>
-                <p style="padding:10px;border-left:2px solid #35616f;font-family:Sans-serif;font-size:12px;color:#4e4e4e;">Copyright © 2017-2018 mgd. 当前呈现版本 v1.0.0</p>    
-            </div>
-        </div>
         <section style="height:100%;overflow: hidden;" id="mountRoot">
             <app style="height:100%;"></app>
         </section>
         <!-- page end -->
-        <script>
-            window.hiddenWindow = function(){
-                document.querySelector('#showWindow').style.height = "0%";
-            }
-        </script>
     </body>
-    <style>
-        .CodeMirror{
-            height:100%;
-        }
-    </style>
 </html>
 

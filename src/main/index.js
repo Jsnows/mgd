@@ -6,12 +6,6 @@ import portfinder from 'portfinder'
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
-let child;
-portfinder.getPort(function (err, port) {
-  process.env.port = port;
-  child = require('child_process').exec(`node ${path.join(__dirname,'../renderer/assets/worker.js')}`,function(err,stdout,stderr){})  
-});
-
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
@@ -33,18 +27,16 @@ function createWindow () {
     useContentSize: true,
     titleBarStyle: 'hidden',
     minWidth:1000,
-    minHeight:600,
+    minHeight:700,
     width:2000,
     height:2000,
-    backgroundColor:'#2e2c29'
+    // backgroundColor:'#2e2c29',
+    show:false
   })
-
+  // mainWindow.webContents.openDevTools ()
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
-    if(child){
-      process.kill(child.pid)  
-    }
     mainWindow = null
   })
 }
