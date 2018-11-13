@@ -6,10 +6,10 @@ const path = require('path')
  */
 module.exports = {
   arch: 'x64',
-  asar: true,
+  asar: false,
   dir: path.join(__dirname, '../'),
   icon: path.join(__dirname, '../build/icons/icon'),
-  ignore: /(^\/(src|complier|\.[a-z]+|README|yarn|static|dist\/web))|\.gitkeep/,
+  ignore: /(^\/(src|complier|\.[a-z]+|README|yarn|dist\/web))|\.gitkeep/,
   out: path.join(__dirname, '../build'),
   overwrite: true,
   platform: process.env.BUILD_TARGET || 'all'
